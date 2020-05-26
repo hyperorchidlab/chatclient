@@ -112,7 +112,7 @@ func InitCfg() {
 //
 //}
 
-func cfginit(bc *config.ChatServerConfig) *config.ChatServerConfig {
+func cfginit(bc *config.ChatClientConfig) *config.ChatClientConfig {
 	cfg := bc
 	//if cmdrootudpport > 0 && cmdrootudpport < 65535 {
 	//	cfg.UpdPort = cmdrootudpport

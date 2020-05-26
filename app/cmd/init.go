@@ -40,15 +40,12 @@ var initCmd = &cobra.Command{
 
 		InitCfg()
 
-
-
 		cfg := config.GetCCC()
 
 		cfg.Save()
 
 	},
 }
-
 
 func init() {
 	rootCmd.AddCommand(initCmd)

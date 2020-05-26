@@ -13,7 +13,6 @@ import (
 	"github.com/kprc/chatclient/app/cmdpb"
 	"github.com/kprc/chatclient/app/cmdservice/api"
 	"github.com/kprc/chatclient/config"
-
 )
 
 type cmdServer struct {

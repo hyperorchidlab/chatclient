@@ -170,7 +170,6 @@ func (bc *ChatClientConfig) GetKeyPath() string {
 	return path.Join(GetCCCHomeDir(), bc.KeyFile)
 }
 
-
 func IsInitialized() bool {
 	if tools.FileExists(GetCCCFGFile()) {
 		return true

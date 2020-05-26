@@ -12,7 +12,6 @@ import (
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/kprc/chatclient/app/cmdpb"
-
 )
 
 type CmdDefaultServer struct {
