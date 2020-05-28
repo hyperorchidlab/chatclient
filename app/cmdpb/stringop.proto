@@ -7,7 +7,7 @@ import "default.proto";
 
 message StringOP{
     int32 op = 1;
-    string param = 2;
+    repeated string param = 2;
 }
 
 service stringopsrv {

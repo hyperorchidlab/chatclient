@@ -10,8 +10,5 @@ const (
 const (
 	CMD_ACCOUNT_CREATE int32 = 2
 	CMD_ACCOUNT_LOAD   int32 = 3
-	CMD_LIST_USER      int32 = 4
-	CMD_LIST_FRIEND    int32 = 5
-	CMD_LIST_GROUP     int32 = 6
-	CMD_LIST_GRPMBR    int32 = 7
+	CMD_REG_USER       int32 = 4
 )

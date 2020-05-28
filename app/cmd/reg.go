@@ -16,55 +16,57 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"github.com/kprc/chatclient/app/cmdclient"
 	"github.com/kprc/chatclient/app/cmdcommon"
-	"github.com/kprc/chatclient/chatcrypt"
 	"github.com/spf13/cobra"
-	"log"
+	"strconv"
 )
 
-// loadCmd represents the load command
-var loadCmd = &cobra.Command{
-	Use:   "load",
-	Short: "load account",
-	Long:  `load account`,
+var regaliasname string
+var regintervalmonth int32
+
+// regCmd represents the reg command
+var regCmd = &cobra.Command{
+	Use:   "reg",
+	Short: "register client",
+	Long:  `register client`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if _, err := cmdcommon.IsProcessStarted(); err != nil {
-			log.Println(err)
+
+		if len(args) > 0 {
+			fmt.Println("command error")
 			return
 		}
 
-		if !chatcrypt.KeyIsGenerated() {
-			log.Println("please create account first")
+		if regaliasname == "" {
+			fmt.Println("need alias param")
 			return
 		}
 
-		var err error
-
-		if keypassword == "" {
-			if keypassword, err = inputpassword(); err != nil {
-				log.Println(err)
-				return
-			}
+		if regintervalmonth <= 0 {
+			fmt.Println("month interval value less than 36 and large than 0")
+			return
 		}
 
 		var param []string
-		param = append(param, keypassword)
+		param = append(param, regaliasname, strconv.Itoa(int(regintervalmonth)))
 
-		cmdclient.StringOpCmdSend("", cmdcommon.CMD_ACCOUNT_LOAD, param)
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_REG_USER, param)
 	},
 }
 
 func init() {
-	accountCmd.AddCommand(loadCmd)
+	rootCmd.AddCommand(regCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// loadCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// regCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// loadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// regCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	regCmd.Flags().StringVarP(&regaliasname, "alias", "a", "", "user alias")
+	regCmd.Flags().Int32VarP(&regintervalmonth, "month", "m", 0, "license to user month interval")
 }

@@ -114,9 +114,9 @@ func InitCfg() {
 
 func cfginit(bc *config.ChatClientConfig) *config.ChatClientConfig {
 	cfg := bc
-	//if cmdrootudpport > 0 && cmdrootudpport < 65535 {
-	//	cfg.UpdPort = cmdrootudpport
-	//}
+	if remoteserver != "" {
+		cfg.RemoteHttpServer = remoteserver
+	}
 	//if cmdroottcpport > 0 && cmdroottcpport < 65535 {
 	//	cfg.TcpPort = cmdroottcpport
 	//}

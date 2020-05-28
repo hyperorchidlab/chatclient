@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 	"sync"
 )
 
@@ -16,13 +17,15 @@ const (
 )
 
 type ChatClientConfig struct {
-	RemoteHttpPort int `json:"remotehttpport"`
+	RemoteHttpPort   int    `json:"remotehttpport"`
+	RemoteHttpServer string `json:"remotehttpserver"`
 
 	CmdListenPort string `json:"cmdlistenport"`
 
 	RemoteChatPort int `json:"chatport"`
 
-	KeyFile string `json:"keyfile"`
+	KeyFile  string `json:"keyfile"`
+	UserFile string `json:"userfile"`
 
 	PrivKey ed25519.PrivateKey `json:"-"`
 	PubKey  ed25519.PublicKey  `json:"-"`
@@ -37,8 +40,9 @@ func (bc *ChatClientConfig) InitCfg() *ChatClientConfig {
 	bc.RemoteHttpPort = 50818
 	bc.CmdListenPort = "127.0.0.1:59527"
 
-	bc.RemoteChatPort = 39527
+	bc.RemoteChatPort = 59527
 	bc.KeyFile = "chat_client.key"
+	bc.UserFile = "chat_user.info"
 
 	return bc
 }
@@ -168,6 +172,23 @@ func (bc *ChatClientConfig) Save() {
 
 func (bc *ChatClientConfig) GetKeyPath() string {
 	return path.Join(GetCCCHomeDir(), bc.KeyFile)
+}
+
+func (bc *ChatClientConfig) GetUserFile() string {
+	return path.Join(GetCCCHomeDir(), bc.UserFile)
+}
+
+func (bc *ChatClientConfig) GetAjaxPath() string {
+	host := bc.RemoteHttpServer + ":" + strconv.Itoa(bc.RemoteHttpPort)
+	return "http://" + host + "/ajax"
+}
+
+func (bc *ChatClientConfig) GetRegUrl() string {
+	return bc.GetAjaxPath() + "/userreg"
+}
+
+func (bc *ChatClientConfig) GetCmdUrl() string {
+	return bc.GetAjaxPath() + "/cmd"
 }
 
 func IsInitialized() bool {

@@ -50,7 +50,7 @@ func (cds *CmdDefaultServer) stop() (*cmdpb.DefaultResp, error) {
 		cds.Stop()
 	}()
 	resp := &cmdpb.DefaultResp{}
-	resp.Message = "server stoped"
+	resp.Message = "chat client stoped"
 	return resp, nil
 }
 
@@ -86,10 +86,10 @@ func (cds *CmdDefaultServer) accountShow() (*cmdpb.DefaultResp, error) {
 
 func (cds *CmdDefaultServer) serverRun() (*cmdpb.DefaultResp, error) {
 	if config.GetCCC().PubKey == nil || config.GetCCC().PrivKey == nil {
-		return encapResp("chat server need account"), nil
+		return encapResp("chat client need account"), nil
 	}
 
 	//go httpservice.StartWebDaemon()
 
-	return encapResp("Server running"), nil
+	return encapResp("chat client running"), nil
 }

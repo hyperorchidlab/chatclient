@@ -8,6 +8,7 @@ import (
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chatclient/chatcrypt"
 	"github.com/kprc/chatclient/config"
+	"strconv"
 	"time"
 )
 
@@ -18,9 +19,15 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 	msg := ""
 	switch so.Op {
 	case cmdcommon.CMD_ACCOUNT_CREATE:
-		msg = createAccount(so.Param)
+		msg = createAccount(so.Param[0])
 	case cmdcommon.CMD_ACCOUNT_LOAD:
-		msg = loadAccount(so.Param)
+		msg = loadAccount(so.Param[0])
+	case cmdcommon.CMD_REG_USER:
+		if len(so.Param) != 2 {
+			msg = "Param error"
+		} else {
+			msg = regUser(so.Param[0], so.Param[1])
+		}
 
 	default:
 		return encapResp("Command Not Found"), nil
@@ -49,6 +56,18 @@ func loadAccount(passwd string) string {
 	addr := address.ToAddress(config.GetCCC().PubKey).String()
 
 	return "load account success! \r\nAddress: " + addr
+}
+
+func regUser(alias string, timeInterval string) string {
+	//tm :=time.Now()
+	//
+	//tv,_:=strconv.Atoi(timeInterval)
+	//
+	//tm1:=tm.AddDate(0, tv,0)
+	//
+	//
+	//
+	//return tm1.Format("2006-01-02 15:04:05")
 }
 
 func int64time2string(t int64) string {

@@ -83,7 +83,10 @@ var createCmd = &cobra.Command{
 			}
 		}
 
-		cmdclient.StringOpCmdSend("", cmdcommon.CMD_ACCOUNT_CREATE, keypassword)
+		var param []string
+		param = append(param, keypassword)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_ACCOUNT_CREATE, param)
 	},
 }
 
