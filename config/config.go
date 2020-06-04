@@ -3,6 +3,7 @@ package config
 import (
 	"crypto/ed25519"
 	"encoding/json"
+	"github.com/kprc/chat-protocol/protocol"
 	"github.com/kprc/nbsnetwork/tools"
 	"log"
 	"os"
@@ -29,6 +30,10 @@ type ChatClientConfig struct {
 
 	PrivKey ed25519.PrivateKey `json:"-"`
 	PubKey  ed25519.PublicKey  `json:"-"`
+
+	SP *protocol.SignPack `json:"-"`
+
+	UpdateFriendTime int64 `json:"updatefriendtime"`
 }
 
 var (
@@ -37,10 +42,10 @@ var (
 )
 
 func (bc *ChatClientConfig) InitCfg() *ChatClientConfig {
-	bc.RemoteHttpPort = 50818
-	bc.CmdListenPort = "127.0.0.1:59527"
+	bc.RemoteHttpPort = 50101
+	bc.CmdListenPort = "127.0.0.1:50100"
 
-	bc.RemoteChatPort = 59527
+	bc.RemoteChatPort = 50102
 	bc.KeyFile = "chat_client.key"
 	bc.UserFile = "chat_user.info"
 

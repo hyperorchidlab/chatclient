@@ -5,8 +5,10 @@ import (
 	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/kprc/chatclient/app/cmdpb"
 
+	"fmt"
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chatclient/chatcrypt"
+	"github.com/kprc/chatclient/chatmeta"
 	"github.com/kprc/chatclient/config"
 	"strconv"
 	"time"
@@ -59,15 +61,26 @@ func loadAccount(passwd string) string {
 }
 
 func regUser(alias string, timeInterval string) string {
-	//tm :=time.Now()
-	//
-	//tv,_:=strconv.Atoi(timeInterval)
-	//
-	//tm1:=tm.AddDate(0, tv,0)
-	//
-	//
-	//
-	//return tm1.Format("2006-01-02 15:04:05")
+	cfg := config.GetCCC()
+	if cfg.PrivKey == nil {
+		return "Please load account first"
+	}
+
+	tv, err := strconv.Atoi(timeInterval)
+	if err != nil {
+		return err.Error()
+	}
+
+	if err = chatmeta.RegChat(alias, tv); err != nil {
+		return err.Error()
+	}
+
+	msg := "Registered success"
+	msg += fmt.Sprintf("Name:%-30s ExpireTime:%-30s",
+		cfg.SP.SignText.AliasName,
+		int64time2string(cfg.SP.SignText.ExpireTime))
+
+	return msg
 }
 
 func int64time2string(t int64) string {

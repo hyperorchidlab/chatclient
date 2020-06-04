@@ -18,11 +18,6 @@ import (
 	"log"
 )
 
-type KeyJson struct {
-	PubKey    string `json:"pub_key"`
-	CipherKey string `json:"cipher_key"`
-}
-
 func KeyIsGenerated() bool {
 	cfg := config.GetCCC()
 	if cfg == nil {
@@ -46,7 +41,7 @@ func LoadKey(password string) {
 		return
 	}
 
-	kj := &KeyJson{}
+	kj := &config.KeyJson{}
 
 	err = json.Unmarshal(data, kj)
 	if err != nil {
@@ -96,12 +91,16 @@ func GenEd25519KeyAndSave(password string) error {
 		return err
 	}
 
-	kj := &KeyJson{PubKey: address.ToAddress(pub[:]).String(), CipherKey: cipherTxt}
+	kj := &config.KeyJson{PubKey: address.ToAddress(pub[:]).String(), CipherKey: cipherTxt}
 
 	cfg := config.GetCCC()
 
 	var data []byte
 	data, err = json.Marshal(*kj)
+	if err != nil {
+		log.Fatal("Save json error")
+		return err
+	}
 	err = tools.Save2File(data, cfg.GetKeyPath())
 	if err != nil {
 		return err
