@@ -21,26 +21,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// groupCmd represents the group command
-var groupCmd = &cobra.Command{
-	Use:   "group",
-	Short: "list all local group",
-	Long: `list all local group`,
+// createCmd represents the create command
+var grpmbrJoinCmd = &cobra.Command{
+	Use:   "join",
+	Short: "join a member to a group",
+	Long: `"join a member to a group`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("group called")
+		fmt.Println("create called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(groupCmd)
+	groupmemberCmd.AddCommand(grpmbrJoinCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// groupCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// groupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

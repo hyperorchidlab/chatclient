@@ -21,26 +21,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// groupCmd represents the group command
-var groupCmd = &cobra.Command{
-	Use:   "group",
-	Short: "list all local group",
-	Long: `list all local group`,
+// friendCmd represents the friend command
+var friendCmd = &cobra.Command{
+	Use:   "friend",
+	Short: "list local friend",
+	Long: `list local friend`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("group called")
+		fmt.Println("friend called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(groupCmd)
+	rootCmd.AddCommand(friendCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// groupCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// friendCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// groupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// friendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

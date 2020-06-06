@@ -49,7 +49,7 @@ var addfriendCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(addfriendCmd)
+	friendCmd.AddCommand(addfriendCmd)
 
 	// Here you will define your flags and configuration settings.
 
