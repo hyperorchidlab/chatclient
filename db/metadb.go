@@ -135,6 +135,7 @@ func GetMetaDb() MetaDbIntf  {
 }
 
 
+
 func (md *MetaDb)AddFriend(alias string,addr address.ChatAddress,agree int,addTime int64)  {
 	md.Lock.Lock()
 	defer md.Lock.Unlock()

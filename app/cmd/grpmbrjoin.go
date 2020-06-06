@@ -16,10 +16,14 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"fmt"
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
 )
+
+var chatgroupid string
+var chatuserid  string
 
 // createCmd represents the create command
 var grpmbrJoinCmd = &cobra.Command{
@@ -27,7 +31,24 @@ var grpmbrJoinCmd = &cobra.Command{
 	Short: "join a member to a group",
 	Long: `"join a member to a group`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("create called")
+		if len(args) > 0{
+			fmt.Println("command error")
+			return
+		}
+
+		if chatgroupid == ""{
+			fmt.Println("must input group id")
+			return
+		}
+		if chatuserid == ""{
+			fmt.Println("must input user id")
+			return
+		}
+		var param []string
+		param = append(param,chatgroupid,chatuserid)
+
+		cmdclient.StringOpCmdSend("",cmdcommon.CMD_JOIN_GROUP,param)
+
 	},
 }
 
@@ -43,4 +64,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	grpmbrJoinCmd.Flags().StringVarP(&chatgroupid,"groupid","g","","group id")
+	grpmbrJoinCmd.Flags().StringVarP(&chatuserid,"userid","u","","user id")
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/kprc/chatclient/config"
 	"strconv"
 	"time"
+	"github.com/kprc/chat-protocol/groupid"
 )
 
 type CmdStringOPSrv struct {
@@ -35,6 +36,19 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 			msg = "Param error"
 		}else{
 			msg = addFriend(so.Param[0])
+		}
+	case cmdcommon.CMD_CREATE_GROUP:
+		if len(so.Param) != 1{
+			msg = "Param error"
+		}else{
+			msg = createGroup(so.Param[0])
+		}
+
+	case cmdcommon.CMD_JOIN_GROUP:
+		if len(so.Param) != 2{
+			msg = "Param error"
+		}else{
+			msg = joinGroup(so.Param[0],so.Param[1])
 		}
 
 	default:
@@ -100,6 +114,34 @@ func addFriend(addr string) string  {
 	}
 
 	return "Add "+addr+" friend success"
+}
+
+func createGroup(name string) string  {
+	cfg:=config.GetCCC()
+
+	if cfg.SP == nil{
+		return "Please register first"
+	}
+
+	if err:=chatmeta.CreateGroup(name);err!=nil{
+		return err.Error()
+	}
+
+	return "Create group " +name +" success"
+}
+
+func joinGroup(groupId string,userid string) string {
+	cfg:=config.GetCCC()
+	if cfg.SP == nil{
+		return "Please register first"
+	}
+
+	if err:=chatmeta.JoinGroup(groupid.GrpID(groupId),userid);err!=nil{
+		return err.Error()
+	}
+
+	return "Join group success"
+
 }
 
 
