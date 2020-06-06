@@ -66,6 +66,10 @@ var daemonCmd = &cobra.Command{
 		}
 		defer cntxt.Release()
 
+		if config.IsUserIdentifyReceived(){
+			config.LoadUserIdentify()
+		}
+
 		cmdservice.GetCmdServerInst().StartCmdService()
 	},
 }

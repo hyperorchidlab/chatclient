@@ -11,4 +11,5 @@ const (
 	CMD_ACCOUNT_CREATE int32 = 2
 	CMD_ACCOUNT_LOAD   int32 = 3
 	CMD_REG_USER       int32 = 4
+	CMD_ADD_FRIEND     int32 = 5
 )

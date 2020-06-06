@@ -71,7 +71,7 @@ func SaveUserIdentify(sp *protocol.SignPack) {
 
 }
 
-func loadUserIdentify() {
+func LoadUserIdentify() {
 
 	cfg := GetCCC()
 	data, err := tools.OpenAndReadAll(cfg.GetUserFile())

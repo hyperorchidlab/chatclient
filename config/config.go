@@ -34,6 +34,10 @@ type ChatClientConfig struct {
 	SP *protocol.SignPack `json:"-"`
 
 	UpdateFriendTime int64 `json:"updatefriendtime"`
+
+	ChatDataPath string		`json:"chat_data_path"`
+	MetaDataPath string     `json:"meta_data_path"`
+
 }
 
 var (
@@ -48,6 +52,8 @@ func (bc *ChatClientConfig) InitCfg() *ChatClientConfig {
 	bc.RemoteChatPort = 50102
 	bc.KeyFile = "chat_client.key"
 	bc.UserFile = "chat_user.info"
+	bc.ChatDataPath = "chat-data"
+	bc.MetaDataPath = "meta-data"
 
 	return bc
 }
@@ -182,6 +188,17 @@ func (bc *ChatClientConfig) GetKeyPath() string {
 func (bc *ChatClientConfig) GetUserFile() string {
 	return path.Join(GetCCCHomeDir(), bc.UserFile)
 }
+
+func (bc *ChatClientConfig) GetMetaPath() string  {
+	mtp:=path.Join(GetCCCHomeDir(),bc.MetaDataPath)
+
+	if !tools.FileExists(mtp){
+		os.MkdirAll(mtp,0755)
+	}
+
+	return mtp
+}
+
 
 func (bc *ChatClientConfig) GetAjaxPath() string {
 	host := bc.RemoteHttpServer + ":" + strconv.Itoa(bc.RemoteHttpPort)

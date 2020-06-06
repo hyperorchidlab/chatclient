@@ -12,6 +12,6 @@
 *.out
 
 cc
-
+linux-amd64-cc
 # Dependency directories (remove the comment below to include it)
 # vendor/

@@ -30,6 +30,12 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 		} else {
 			msg = regUser(so.Param[0], so.Param[1])
 		}
+	case cmdcommon.CMD_ADD_FRIEND:
+		if len(so.Param) != 1{
+			msg = "Param error"
+		}else{
+			msg = addFriend(so.Param[0])
+		}
 
 	default:
 		return encapResp("Command Not Found"), nil
@@ -82,6 +88,20 @@ func regUser(alias string, timeInterval string) string {
 
 	return msg
 }
+
+func addFriend(addr string) string  {
+	cfg:=config.GetCCC()
+	if cfg.SP == nil{
+		return "Please register first"
+	}
+
+	if err := chatmeta.AddFriend(address.ChatAddress(addr)); err!=nil{
+		return err.Error()
+	}
+
+	return "Add "+addr+" friend success"
+}
+
 
 func int64time2string(t int64) string {
 	tm := time.Unix(t/1000, 0)

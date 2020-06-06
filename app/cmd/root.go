@@ -65,6 +65,10 @@ var rootCmd = &cobra.Command{
 
 		chatcrypt.LoadKey(keypassword)
 
+		if config.IsUserIdentifyReceived(){
+			config.LoadUserIdentify()
+		}
+
 		//go httpservice.StartWebDaemon()
 
 		cmdservice.GetCmdServerInst().StartCmdService()
