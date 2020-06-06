@@ -51,7 +51,7 @@ func inputChoose() (choose string, err error) {
 }
 
 // createCmd represents the create command
-var createCmd = &cobra.Command{
+var accCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "create account",
 	Long:  `create account`,
@@ -91,7 +91,7 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	accountCmd.AddCommand(createCmd)
+	accountCmd.AddCommand(accCreateCmd)
 
 	// Here you will define your flags and configuration settings.
 
