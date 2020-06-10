@@ -35,6 +35,8 @@ func (cds *CmdDefaultServer) DefaultCmdDo(ctx context.Context,
 		msg = cds.serverRun()
 	case cmdcommon.CMD_REFRESH_ALL:
 		msg = cds.refreshAll()
+	case cmdcommon.CMD_LIST_FRIEND:
+		msg = cds.listFriends()
 
 	}
 
@@ -101,10 +103,26 @@ func (cds *CmdDefaultServer) refreshAll() string {
 		return "Please Register first"
 	}
 
-	msg, err := chatmeta.ListFriends()
+	msg, err := chatmeta.RefreshFriends()
 	if err != nil {
 		return err.Error()
 	}
 
 	return msg
+}
+
+func (cds *CmdDefaultServer)listFriends() string {
+	cfg:=config.GetCCC()
+	if cfg.SP == nil{
+		return "Please Register first"
+	}
+
+
+	msg,err:=chatmeta.ListFriends()
+	if err!=nil{
+		return err.Error()
+	}
+
+	return msg
+
 }

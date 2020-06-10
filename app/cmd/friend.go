@@ -16,9 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/kprc/chatclient/app/cmdcommon"
+	"github.com/kprc/chatclient/app/cmdclient"
 )
 
 // friendCmd represents the friend command
@@ -27,7 +27,7 @@ var friendCmd = &cobra.Command{
 	Short: "list local friend",
 	Long:  `list local friend`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("friend called")
+		cmdclient.DefaultCmdSend("", cmdcommon.CMD_LIST_FRIEND)
 	},
 }
 

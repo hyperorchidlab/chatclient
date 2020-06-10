@@ -80,7 +80,7 @@ func AddFriend(addr address.ChatAddress) error {
 
 }
 
-func ListGroupMembers(gid groupid.GrpID) error {
+func RefreshGroupMembers(gid groupid.GrpID) error {
 	cfg := config.GetCCC()
 
 	cmd := protocol.UserCommand{}
@@ -155,7 +155,7 @@ func ListGroupMembers(gid groupid.GrpID) error {
 
 }
 
-func ListFriends() (string, error) {
+func RefreshFriends() (string, error) {
 
 	cfg := config.GetCCC()
 
@@ -212,7 +212,7 @@ func ListFriends() (string, error) {
 	for i := 0; i < len(fl.GD); i++ {
 		g := fl.GD[i]
 
-		err = ListGroupMembers(groupid.GrpID(g.GrpId))
+		err = RefreshGroupMembers(groupid.GrpID(g.GrpId))
 		if err != nil {
 			log.Println(err)
 		}
@@ -241,5 +241,10 @@ func insert2FriendDB(fl *protocol.FriendList) {
 		g := fl.GD[i]
 		mdb.AddGroup(g.Alias, groupid.GrpID(g.GrpId), g.IsOwner, g.CreateTime)
 	}
+
+}
+
+func ListFriends() (string, error)  {
+	mdb := db.GetMetaDb()
 
 }

@@ -406,15 +406,28 @@ func (md *MetaDb) loadFriend() error {
 
 		} else {
 			if len(line) > 0 {
+
+				ul:=line
+
+				if line[0] == '-'{
+					ul = line[1:]
+				}
+
 				f := &Friend{}
 
-				err := json.Unmarshal(line, f)
+				err := json.Unmarshal(ul, f)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
 
-				md.addFriend(f.AliasName, f.Addr, f.Agree, f.AddTime)
+				if line[0] == '-'{
+					md.delFriend(f.Addr)
+				}else{
+					md.addFriend(f.AliasName, f.Addr, f.Agree, f.AddTime)
+				}
+
+
 			}
 		}
 	}
@@ -506,15 +519,24 @@ func (md *MetaDb) loadGroup() error {
 
 		} else {
 			if len(line) > 0 {
+				ul:=line
+				if line[0] == '-'{
+					ul=line[1:]
+				}
 				g := &Group{}
 
-				err := json.Unmarshal(line, g)
+				err := json.Unmarshal(ul, g)
 				if err != nil {
 					log.Println(err)
 					continue
 				}
+				if line[0] == '-'{
+					md.delGroup(g.GroupId)
+				}else{
+					md.addGroup(g.GroupName, g.GroupId, g.IsOwner, g.CreateTime)
+				}
 
-				md.addGroup(g.GroupName, g.GroupId, g.IsOwner, g.CreateTime)
+
 			}
 		}
 	}
@@ -567,9 +589,15 @@ func (md *MetaDb) loadGroupMember() error {
 
 		} else {
 			if len(line) > 0 {
+
+				ul:=line
+				if line[0] == '-'{
+					ul = line[1:]
+				}
+
 				gmo := &GroupMbrWithOwner{}
 
-				err := json.Unmarshal(line, gmo)
+				err := json.Unmarshal(ul, gmo)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -755,3 +783,5 @@ func (md *MetaDb) Save() {
 	md.cleanup()
 
 }
+
+
