@@ -25,7 +25,7 @@ import (
 var friendCmd = &cobra.Command{
 	Use:   "friend",
 	Short: "list local friend",
-	Long: `list local friend`,
+	Long:  `list local friend`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("friend called")
 	},

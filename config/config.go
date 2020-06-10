@@ -35,9 +35,8 @@ type ChatClientConfig struct {
 
 	UpdateFriendTime int64 `json:"updatefriendtime"`
 
-	ChatDataPath string		`json:"chat_data_path"`
-	MetaDataPath string     `json:"meta_data_path"`
-
+	ChatDataPath string `json:"chat_data_path"`
+	MetaDataPath string `json:"meta_data_path"`
 }
 
 var (
@@ -189,16 +188,15 @@ func (bc *ChatClientConfig) GetUserFile() string {
 	return path.Join(GetCCCHomeDir(), bc.UserFile)
 }
 
-func (bc *ChatClientConfig) GetMetaPath() string  {
-	mtp:=path.Join(GetCCCHomeDir(),bc.MetaDataPath)
+func (bc *ChatClientConfig) GetMetaPath() string {
+	mtp := path.Join(GetCCCHomeDir(), bc.MetaDataPath)
 
-	if !tools.FileExists(mtp){
-		os.MkdirAll(mtp,0755)
+	if !tools.FileExists(mtp) {
+		os.MkdirAll(mtp, 0755)
 	}
 
 	return mtp
 }
-
 
 func (bc *ChatClientConfig) GetAjaxPath() string {
 	host := bc.RemoteHttpServer + ":" + strconv.Itoa(bc.RemoteHttpPort)

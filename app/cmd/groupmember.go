@@ -21,11 +21,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
 var groupmemberCmd = &cobra.Command{
 	Use:   "groupmember",
 	Short: "show group info and group member",
-	Long: `show group info and group member`,
+	Long:  `show group info and group member`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("groupmember called")
 	},

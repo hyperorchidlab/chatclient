@@ -25,7 +25,7 @@ import (
 var grpMbrQuitCmd = &cobra.Command{
 	Use:   "quit",
 	Short: "quit from a group",
-	Long: `quit from a group`,
+	Long:  `quit from a group`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("quit called")
 	},

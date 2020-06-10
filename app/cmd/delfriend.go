@@ -25,7 +25,7 @@ import (
 var friendDelCmd = &cobra.Command{
 	Use:   "del",
 	Short: "del a friend",
-	Long: `del a friend`,
+	Long:  `del a friend`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("del called")
 	},

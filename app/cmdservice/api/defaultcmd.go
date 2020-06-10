@@ -12,6 +12,7 @@ import (
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/kprc/chatclient/app/cmdpb"
+	"github.com/kprc/chatclient/chatmeta"
 )
 
 type CmdDefaultServer struct {
@@ -20,38 +21,38 @@ type CmdDefaultServer struct {
 
 func (cds *CmdDefaultServer) DefaultCmdDo(ctx context.Context,
 	request *cmdpb.DefaultRequest) (*cmdpb.DefaultResp, error) {
-	if request.Reqid == cmdcommon.CMD_STOP {
-		return cds.stop()
-	}
 
-	if request.Reqid == cmdcommon.CMD_CONFIG_SHOW {
-		return cds.configShow()
-	}
+	msg := ""
 
-	if request.Reqid == cmdcommon.CMD_PK_SHOW {
-		return cds.accountShow()
-	}
+	switch request.Reqid {
+	case cmdcommon.CMD_STOP:
+		msg = cds.stop()
+	case cmdcommon.CMD_CONFIG_SHOW:
+		msg = cds.configShow()
+	case cmdcommon.CMD_PK_SHOW:
+		msg = cds.accountShow()
+	case cmdcommon.CMD_RUN:
+		msg = cds.serverRun()
+	case cmdcommon.CMD_REFRESH_ALL:
+		msg = cds.refreshAll()
 
-	if request.Reqid == cmdcommon.CMD_RUN {
-		return cds.serverRun()
 	}
 
 	resp := &cmdpb.DefaultResp{}
-
-	resp.Message = "no cmd found"
+	resp.Message = msg
 
 	return resp, nil
+
 }
 
-func (cds *CmdDefaultServer) stop() (*cmdpb.DefaultResp, error) {
+func (cds *CmdDefaultServer) stop() string {
 
 	go func() {
 		time.Sleep(time.Second * 2)
 		cds.Stop()
 	}()
-	resp := &cmdpb.DefaultResp{}
-	resp.Message = "chat client stoped"
-	return resp, nil
+
+	return "chat client stopped"
 }
 
 func encapResp(msg string) *cmdpb.DefaultResp {
@@ -61,18 +62,18 @@ func encapResp(msg string) *cmdpb.DefaultResp {
 	return resp
 }
 
-func (cds *CmdDefaultServer) configShow() (*cmdpb.DefaultResp, error) {
+func (cds *CmdDefaultServer) configShow() string {
 	cfg := config.GetCCC()
 
 	bapc, err := json.MarshalIndent(*cfg, "", "\t")
 	if err != nil {
-		return encapResp("Internal error"), nil
+		return "Internal error"
 	}
 
-	return encapResp(string(bapc)), nil
+	return string(bapc)
 }
 
-func (cds *CmdDefaultServer) accountShow() (*cmdpb.DefaultResp, error) {
+func (cds *CmdDefaultServer) accountShow() string {
 	cfg := config.GetCCC()
 
 	msg := "please create account"
@@ -81,15 +82,29 @@ func (cds *CmdDefaultServer) accountShow() (*cmdpb.DefaultResp, error) {
 		msg = address.ToAddress(cfg.PubKey).String()
 	}
 
-	return encapResp(msg), nil
+	return msg
 }
 
-func (cds *CmdDefaultServer) serverRun() (*cmdpb.DefaultResp, error) {
+func (cds *CmdDefaultServer) serverRun() string {
 	if config.GetCCC().PubKey == nil || config.GetCCC().PrivKey == nil {
-		return encapResp("chat client need account"), nil
+		return "chat client need account"
 	}
 
-	//go httpservice.StartWebDaemon()
+	return "chat client running"
+}
 
-	return encapResp("chat client running"), nil
+func (cds *CmdDefaultServer) refreshAll() string {
+
+	cfg := config.GetCCC()
+
+	if cfg.SP == nil {
+		return "Please Register first"
+	}
+
+	msg, err := chatmeta.ListFriends()
+	if err != nil {
+		return err.Error()
+	}
+
+	return msg
 }

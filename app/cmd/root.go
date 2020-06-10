@@ -65,7 +65,7 @@ var rootCmd = &cobra.Command{
 
 		chatcrypt.LoadKey(keypassword)
 
-		if config.IsUserIdentifyReceived(){
+		if config.IsUserIdentifyReceived() {
 			config.LoadUserIdentify()
 		}
 

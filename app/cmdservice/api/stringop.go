@@ -7,12 +7,12 @@ import (
 
 	"fmt"
 	"github.com/kprc/chat-protocol/address"
+	"github.com/kprc/chat-protocol/groupid"
 	"github.com/kprc/chatclient/chatcrypt"
 	"github.com/kprc/chatclient/chatmeta"
 	"github.com/kprc/chatclient/config"
 	"strconv"
 	"time"
-	"github.com/kprc/chat-protocol/groupid"
 )
 
 type CmdStringOPSrv struct {
@@ -32,23 +32,23 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 			msg = regUser(so.Param[0], so.Param[1])
 		}
 	case cmdcommon.CMD_ADD_FRIEND:
-		if len(so.Param) != 1{
+		if len(so.Param) != 1 {
 			msg = "Param error"
-		}else{
+		} else {
 			msg = addFriend(so.Param[0])
 		}
 	case cmdcommon.CMD_CREATE_GROUP:
-		if len(so.Param) != 1{
+		if len(so.Param) != 1 {
 			msg = "Param error"
-		}else{
+		} else {
 			msg = createGroup(so.Param[0])
 		}
 
 	case cmdcommon.CMD_JOIN_GROUP:
-		if len(so.Param) != 2{
+		if len(so.Param) != 2 {
 			msg = "Param error"
-		}else{
-			msg = joinGroup(so.Param[0],so.Param[1])
+		} else {
+			msg = joinGroup(so.Param[0], so.Param[1])
 		}
 
 	default:
@@ -103,47 +103,46 @@ func regUser(alias string, timeInterval string) string {
 	return msg
 }
 
-func addFriend(addr string) string  {
-	cfg:=config.GetCCC()
-	if cfg.SP == nil{
+func addFriend(addr string) string {
+	cfg := config.GetCCC()
+	if cfg.SP == nil {
 		return "Please register first"
 	}
 
-	if err := chatmeta.AddFriend(address.ChatAddress(addr)); err!=nil{
+	if err := chatmeta.AddFriend(address.ChatAddress(addr)); err != nil {
 		return err.Error()
 	}
 
-	return "Add "+addr+" friend success"
+	return "Add " + addr + " friend success"
 }
 
-func createGroup(name string) string  {
-	cfg:=config.GetCCC()
+func createGroup(name string) string {
+	cfg := config.GetCCC()
 
-	if cfg.SP == nil{
+	if cfg.SP == nil {
 		return "Please register first"
 	}
 
-	if err:=chatmeta.CreateGroup(name);err!=nil{
+	if err := chatmeta.CreateGroup(name); err != nil {
 		return err.Error()
 	}
 
-	return "Create group " +name +" success"
+	return "Create group " + name + " success"
 }
 
-func joinGroup(groupId string,userid string) string {
-	cfg:=config.GetCCC()
-	if cfg.SP == nil{
+func joinGroup(groupId string, userid string) string {
+	cfg := config.GetCCC()
+	if cfg.SP == nil {
 		return "Please register first"
 	}
 
-	if err:=chatmeta.JoinGroup(groupid.GrpID(groupId),userid);err!=nil{
+	if err := chatmeta.JoinGroup(groupid.GrpID(groupId), userid); err != nil {
 		return err.Error()
 	}
 
 	return "Join group success"
 
 }
-
 
 func int64time2string(t int64) string {
 	tm := time.Unix(t/1000, 0)

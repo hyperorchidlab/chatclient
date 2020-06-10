@@ -1,49 +1,48 @@
 package chatmeta
 
 import (
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/nbsnetwork/tools"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/chat-protocol/address"
 	"encoding/json"
-	"log"
-	"github.com/rickeyliao/ServiceAgent/common"
-	"strconv"
-	"github.com/kprc/chatclient/chatcrypt"
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/kprc/chat-protocol/address"
+	"github.com/kprc/chat-protocol/groupid"
+	"github.com/kprc/chat-protocol/protocol"
+	"github.com/kprc/chatclient/chatcrypt"
+	"github.com/kprc/chatclient/config"
+	"github.com/kprc/nbsnetwork/tools"
+	"github.com/rickeyliao/ServiceAgent/common"
+	"log"
+	"strconv"
 )
 
 func CreateGroup(groupName string) error {
 
-	gd:=&protocol.GroupDesc{}
+	gd := &protocol.GroupDesc{}
 	gd.GroupAlias = groupName
 	gd.GroupID = groupid.NewGroupId().String()
 	gd.SendTime = tools.GetNowMsTime()
 
-	cfg:=config.GetCCC()
+	cfg := config.GetCCC()
 
-	uc:=&protocol.UserCommand{}
+	uc := &protocol.UserCommand{}
 	uc.Op = protocol.AddGroup
 	uc.SP = *cfg.SP
 
+	serverPub := address.ChatAddress(cfg.SP.SignText.SPubKey).ToPubKey()
+	aesk, _ := chatcrypt.GenerateAesKey(serverPub, cfg.PrivKey)
 
-	serverPub:=address.ChatAddress(cfg.SP.SignText.SPubKey).ToPubKey()
-	aesk,_:=chatcrypt.GenerateAesKey(serverPub,cfg.PrivKey)
+	data, _ := json.Marshal(*gd)
 
-	data,_:=json.Marshal(*gd)
-
-	ciphertxt,_ := chatcrypt.Encrypt(aesk,data)
+	ciphertxt, _ := chatcrypt.Encrypt(aesk, data)
 
 	uc.CipherTxt = base58.Encode(ciphertxt)
 
-	d2s,_:=json.Marshal(uc)
+	d2s, _ := json.Marshal(uc)
 
 	var (
 		resp string
 		stat int
-		err error
+		err  error
 	)
 	log.Println(string(d2s))
 
@@ -52,19 +51,19 @@ func CreateGroup(groupName string) error {
 		return err
 	}
 	if stat != 200 {
-		return errors.New("Get Error Stat Code:"+strconv.Itoa(stat))
+		return errors.New("Get Error Stat Code:" + strconv.Itoa(stat))
 	}
 
 	log.Println(resp)
 
-	reply:=&protocol.UCReply{}
-	json.Unmarshal([]byte(resp),reply)
+	reply := &protocol.UCReply{}
+	json.Unmarshal([]byte(resp), reply)
 
-	if reply.CipherTxt != uc.CipherTxt{
+	if reply.CipherTxt != uc.CipherTxt {
 		return errors.New("create group failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.AddGroup{
+	if reply.ResultCode == 0 || reply.OP == protocol.AddGroup {
 		return nil
 	}
 
@@ -74,40 +73,39 @@ func CreateGroup(groupName string) error {
 
 func JoinGroup(gid groupid.GrpID, friendPk string) error {
 
-	if !gid.IsValid(){
+	if !gid.IsValid() {
 		return errors.New("group id is not corrected")
 	}
-	if !address.ChatAddress(friendPk).IsValid(){
+	if !address.ChatAddress(friendPk).IsValid() {
 		return errors.New("user id not correct")
 	}
 
-	cfg:=config.GetCCC()
+	cfg := config.GetCCC()
 
-	uc:=&protocol.UserCommand{}
+	uc := &protocol.UserCommand{}
 	uc.Op = protocol.JoinGroup
 	uc.SP = *cfg.SP
 
-	gmd:=&protocol.GroupMemberDesc{}
+	gmd := &protocol.GroupMemberDesc{}
 	gmd.GroupID = gid.String()
 	gmd.Friend = friendPk
 	gmd.SendTime = tools.GetNowMsTime()
 
+	serverPub := address.ChatAddress(cfg.SP.SignText.SPubKey).ToPubKey()
+	aesk, _ := chatcrypt.GenerateAesKey(serverPub, cfg.PrivKey)
 
-	serverPub:=address.ChatAddress(cfg.SP.SignText.SPubKey).ToPubKey()
-	aesk,_:=chatcrypt.GenerateAesKey(serverPub,cfg.PrivKey)
+	data, _ := json.Marshal(*gmd)
 
-	data,_:=json.Marshal(*gmd)
-
-	ciphertxt,_ := chatcrypt.Encrypt(aesk,data)
+	ciphertxt, _ := chatcrypt.Encrypt(aesk, data)
 
 	uc.CipherTxt = base58.Encode(ciphertxt)
 
-	d2s,_:=json.Marshal(uc)
+	d2s, _ := json.Marshal(uc)
 
 	var (
 		resp string
 		stat int
-		err error
+		err  error
 	)
 	log.Println(string(d2s))
 
@@ -116,19 +114,19 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 		return err
 	}
 	if stat != 200 {
-		return errors.New("Get Error Stat Code:"+strconv.Itoa(stat))
+		return errors.New("Get Error Stat Code:" + strconv.Itoa(stat))
 	}
 
 	log.Println(resp)
 
-	reply:=&protocol.UCReply{}
-	json.Unmarshal([]byte(resp),reply)
+	reply := &protocol.UCReply{}
+	json.Unmarshal([]byte(resp), reply)
 
-	if reply.CipherTxt != uc.CipherTxt{
+	if reply.CipherTxt != uc.CipherTxt {
 		return errors.New("join group failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.AddGroup{
+	if reply.ResultCode == 0 || reply.OP == protocol.AddGroup {
 		return nil
 	}
 

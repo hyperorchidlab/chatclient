@@ -66,7 +66,7 @@ var daemonCmd = &cobra.Command{
 		}
 		defer cntxt.Release()
 
-		if config.IsUserIdentifyReceived(){
+		if config.IsUserIdentifyReceived() {
 			config.LoadUserIdentify()
 		}
 

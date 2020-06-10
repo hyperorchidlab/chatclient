@@ -16,51 +16,31 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/kprc/chatclient/app/cmdclient"
 	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
 
-var friendChatAddr string
-
-// addfriendCmd represents the addfriend command
-var addfriendCmd = &cobra.Command{
-	Use:   "addfriend",
-	Short: "add friend",
-	Long:  `add friend`,
+// refreshCmd represents the refresh command
+var refreshCmd = &cobra.Command{
+	Use:   "refresh",
+	Short: "refresh all friends and groups",
+	Long:  `refresh all friends and groups`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 0 {
-			fmt.Println("command error")
-			return
-		}
-
-		if friendChatAddr == "" {
-			fmt.Println("need friend chat address")
-			return
-		}
-
-		var param []string
-		param = append(param, friendChatAddr)
-
-		cmdclient.StringOpCmdSend("", cmdcommon.CMD_ADD_FRIEND, param)
+		cmdclient.DefaultCmdSend("", cmdcommon.CMD_REFRESH_ALL)
 	},
 }
 
 func init() {
-	friendCmd.AddCommand(addfriendCmd)
+	rootCmd.AddCommand(refreshCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// addfriendCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// refreshCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// addfriendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	addfriendCmd.Flags().StringVarP(&friendChatAddr, "address", "a", "", "chat address")
-
+	// refreshCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

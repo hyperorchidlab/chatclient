@@ -16,10 +16,10 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
 	"github.com/kprc/chatclient/app/cmdclient"
 	"github.com/kprc/chatclient/app/cmdcommon"
+	"github.com/spf13/cobra"
 )
 
 var groupchatname string
@@ -28,20 +28,20 @@ var groupchatname string
 var groupCreateCmd = &cobra.Command{
 	Use:   "create",
 	Short: "create a group",
-	Long: `create a group`,
+	Long:  `create a group`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args)>0{
+		if len(args) > 0 {
 			fmt.Println("Command error")
 			return
 		}
-		if groupchatname == ""{
+		if groupchatname == "" {
 			fmt.Println("need set a group name")
 			return
 		}
 		var param []string
-		param = append(param,groupchatname)
+		param = append(param, groupchatname)
 
-		cmdclient.StringOpCmdSend("",cmdcommon.CMD_CREATE_GROUP,param)
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_CREATE_GROUP, param)
 
 	},
 }
@@ -59,6 +59,6 @@ func init() {
 	// is called directly, e.g.:
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	groupCreateCmd.Flags().StringVarP(&groupchatname,"name","n","","group name")
+	groupCreateCmd.Flags().StringVarP(&groupchatname, "name", "n", "", "group name")
 
 }

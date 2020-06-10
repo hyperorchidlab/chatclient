@@ -25,7 +25,7 @@ import (
 var groupDelCmd = &cobra.Command{
 	Use:   "del",
 	Short: "delete a group",
-	Long: `delete a group`,
+	Long:  `delete a group`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("del called")
 	},

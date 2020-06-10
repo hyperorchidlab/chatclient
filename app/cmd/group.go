@@ -21,14 +21,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
-
 // groupCmd represents the group command
 var groupCmd = &cobra.Command{
 	Use:   "group",
 	Short: "list all local group",
-	Long: `list all local group`,
+	Long:  `list all local group`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("group called")
 	},
