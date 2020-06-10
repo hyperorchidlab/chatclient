@@ -218,7 +218,7 @@ func ListFriends() (string, error) {
 		}
 	}
 
-	return "", nil
+	return "refresh success", nil
 
 }
 
