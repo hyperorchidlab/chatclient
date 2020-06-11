@@ -13,6 +13,7 @@ import (
 	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/kprc/chatclient/app/cmdpb"
 	"github.com/kprc/chatclient/chatmeta"
+	"github.com/kprc/chatclient/db"
 )
 
 type CmdDefaultServer struct {
@@ -37,7 +38,12 @@ func (cds *CmdDefaultServer) DefaultCmdDo(ctx context.Context,
 		msg = cds.refreshAll()
 	case cmdcommon.CMD_LIST_FRIEND:
 		msg = cds.listFriends()
+	case cmdcommon.CMD_LIST_GROUP:
+		msg = cds.ListGroups()
+	}
 
+	if msg == "" {
+		msg = "No Results"
 	}
 
 	resp := &cmdpb.DefaultResp{}
@@ -103,6 +109,8 @@ func (cds *CmdDefaultServer) refreshAll() string {
 		return "Please Register first"
 	}
 
+	db.RenewMetaDb()
+
 	msg, err := chatmeta.RefreshFriends()
 	if err != nil {
 		return err.Error()
@@ -111,18 +119,30 @@ func (cds *CmdDefaultServer) refreshAll() string {
 	return msg
 }
 
-func (cds *CmdDefaultServer)listFriends() string {
-	cfg:=config.GetCCC()
-	if cfg.SP == nil{
+func (cds *CmdDefaultServer) listFriends() string {
+	cfg := config.GetCCC()
+	if cfg.SP == nil {
 		return "Please Register first"
 	}
 
-
-	msg,err:=chatmeta.ListFriends()
-	if err!=nil{
+	msg, err := chatmeta.ListFriends()
+	if err != nil {
 		return err.Error()
 	}
 
 	return msg
+}
 
+func (cds *CmdDefaultServer) ListGroups() string {
+	cfg := config.GetCCC()
+	if cfg.SP == nil {
+		return "Please Register first"
+	}
+
+	msg, err := chatmeta.ListGroups()
+	if err != nil {
+		return err.Error()
+	}
+
+	return msg
 }

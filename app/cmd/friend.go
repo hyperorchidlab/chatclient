@@ -16,9 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
+	"github.com/spf13/cobra"
 )
 
 // friendCmd represents the friend command

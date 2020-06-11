@@ -3,6 +3,7 @@ package db
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chat-protocol/groupid"
 	"github.com/kprc/chatclient/config"
@@ -26,6 +27,10 @@ type MetaDbIntf interface {
 	AddGroupMember(id groupid.GrpID, name string, addr address.ChatAddress, agree int, joinTime int64) error
 	DelGroupMember(id groupid.GrpID, addr address.ChatAddress) error
 
+	TraversFriends(arg interface{}, do func(arg, v interface{}) (ret interface{}, err error))
+	TraversGroups(arg interface{}, do func(arg, v interface{}) (ret interface{}, err error))
+	TraversGroupMembers(gid groupid.GrpID, arg interface{}, do func(arg, v interface{}) (ret interface{}, err error))
+
 	Load() MetaDbIntf
 	Save()
 }
@@ -41,6 +46,16 @@ type Friend struct {
 	AddTime   int64               `json:"add_time"`
 }
 
+func (f *Friend) String() string {
+	msg := ""
+	msg += fmt.Sprintf("%-20s", f.AliasName)
+	msg += fmt.Sprintf("%-48s", f.Addr.String())
+	msg += fmt.Sprintf("%-4d", f.Agree)
+	msg += fmt.Sprintf("%-20s", tools.Int64Time2String(f.AddTime))
+
+	return msg
+}
+
 func (f *Friend) GetIndex() string {
 	return f.Addr.String()
 }
@@ -50,6 +65,17 @@ type GroupMember struct {
 	Addr          address.ChatAddress `json:"addr"`
 	Agree         int                 `json:"agree"`
 	JoinGroupTime int64               `json:"join_group_time"`
+}
+
+func (gm *GroupMember) String() string {
+	msg := ""
+
+	msg += fmt.Sprintf("%-20s", gm.AliasName)
+	msg += fmt.Sprintf("%-48s", gm.Addr.String())
+	msg += fmt.Sprintf("%-4d", gm.Agree)
+	msg += fmt.Sprintf("%-20s", tools.Int64Time2String(gm.JoinGroupTime))
+
+	return msg
 }
 
 func (gm *GroupMember) GetIndex() string {
@@ -62,6 +88,16 @@ type Group struct {
 	IsOwner    bool          `json:"is_owner"`
 	CreateTime int64         `json:"create_time"`
 	LMember    list.List     `json:"-"`
+}
+
+func (g *Group) String() string {
+	msg := ""
+	msg += fmt.Sprintf("%-20s", g.GroupName)
+	msg += fmt.Sprintf("%-48s", g.GroupId.String())
+	msg += fmt.Sprintf("%-6v", g.IsOwner)
+	msg += fmt.Sprintf("%-20s", tools.Int64Time2String(g.CreateTime))
+
+	return msg
 }
 
 func (g *Group) GetIndex() string {
@@ -407,9 +443,9 @@ func (md *MetaDb) loadFriend() error {
 		} else {
 			if len(line) > 0 {
 
-				ul:=line
+				ul := line
 
-				if line[0] == '-'{
+				if line[0] == '-' {
 					ul = line[1:]
 				}
 
@@ -421,12 +457,11 @@ func (md *MetaDb) loadFriend() error {
 					continue
 				}
 
-				if line[0] == '-'{
+				if line[0] == '-' {
 					md.delFriend(f.Addr)
-				}else{
+				} else {
 					md.addFriend(f.AliasName, f.Addr, f.Agree, f.AddTime)
 				}
-
 
 			}
 		}
@@ -519,9 +554,9 @@ func (md *MetaDb) loadGroup() error {
 
 		} else {
 			if len(line) > 0 {
-				ul:=line
-				if line[0] == '-'{
-					ul=line[1:]
+				ul := line
+				if line[0] == '-' {
+					ul = line[1:]
 				}
 				g := &Group{}
 
@@ -530,12 +565,11 @@ func (md *MetaDb) loadGroup() error {
 					log.Println(err)
 					continue
 				}
-				if line[0] == '-'{
+				if line[0] == '-' {
 					md.delGroup(g.GroupId)
-				}else{
+				} else {
 					md.addGroup(g.GroupName, g.GroupId, g.IsOwner, g.CreateTime)
 				}
-
 
 			}
 		}
@@ -590,8 +624,8 @@ func (md *MetaDb) loadGroupMember() error {
 		} else {
 			if len(line) > 0 {
 
-				ul:=line
-				if line[0] == '-'{
+				ul := line
+				if line[0] == '-' {
 					ul = line[1:]
 				}
 
@@ -784,4 +818,34 @@ func (md *MetaDb) Save() {
 
 }
 
+func (md *MetaDb) TraversFriends(arg interface{}, do func(arg, v interface{}) (ret interface{}, err error)) {
+	md.Lock.Lock()
+	defer md.Lock.Unlock()
 
+	md.LFriend.Traverse(arg, do)
+}
+
+func (md *MetaDb) TraversGroups(arg interface{}, do func(arg, v interface{}) (ret interface{}, err error)) {
+	md.Lock.Lock()
+	defer md.Lock.Unlock()
+
+	md.LGroup.Traverse(arg, do)
+}
+
+func (md *MetaDb) TraversGroupMembers(gid groupid.GrpID, arg interface{}, do func(arg, v interface{}) (ret interface{}, err error)) {
+	md.Lock.Lock()
+	defer md.Lock.Unlock()
+
+	ag := &Group{}
+	ag.GroupId = gid
+
+	n := md.LGroup.Find(ag)
+
+	if n == nil {
+		return
+	}
+
+	g := n.Value.(*Group)
+
+	g.LMember.Traverse(arg, do)
+}

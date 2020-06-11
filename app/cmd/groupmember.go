@@ -18,15 +18,36 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kprc/chat-protocol/groupid"
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
+
+var chatlistgroupid string
 
 var groupmemberCmd = &cobra.Command{
 	Use:   "groupmember",
 	Short: "show group info and group member",
 	Long:  `show group info and group member`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("groupmember called")
+		if len(args) > 0 {
+			fmt.Println("command error")
+			return
+		}
+
+		if chatlistgroupid == "" {
+			fmt.Println("must input group id")
+			return
+		}
+		if !groupid.GrpID(chatlistgroupid).IsValid() {
+			fmt.Println("please input a correc group id")
+		}
+
+		var param []string
+		param = append(param, chatlistgroupid)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LIST_GROUPMBRS, param)
 	},
 }
 
@@ -42,4 +63,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// groupmemberCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	groupmemberCmd.Flags().StringVarP(&chatlistgroupid, "groupid", "g", "", "group id")
 }

@@ -244,7 +244,79 @@ func insert2FriendDB(fl *protocol.FriendList) {
 
 }
 
-func ListFriends() (string, error)  {
+func ListFriends() (string, error) {
 	mdb := db.GetMetaDb()
 
+	type friendArg struct {
+		msg string
+	}
+
+	arg := &friendArg{}
+
+	mdb.TraversFriends(arg, func(arg, v interface{}) (ret interface{}, err error) {
+		f := v.(*db.Friend)
+		ag := arg.(*friendArg)
+
+		if ag.msg != "" {
+			ag.msg += "\r\n"
+		}
+		ag.msg += f.String()
+
+		return nil, nil
+	})
+
+	return arg.msg, nil
+}
+
+func ListGroups() (string, error) {
+	mdb := db.GetMetaDb()
+
+	type groupArg struct {
+		msg string
+	}
+
+	arg := &groupArg{}
+
+	mdb.TraversGroups(arg, func(arg, v interface{}) (ret interface{}, err error) {
+		g := v.(*db.Group)
+		ag := arg.(*groupArg)
+
+		if ag.msg != "" {
+			ag.msg += "\r\n"
+		}
+		ag.msg += g.String()
+
+		return nil, nil
+	})
+
+	return arg.msg, nil
+}
+
+func ListGroupMembers(gid groupid.GrpID) (string, error) {
+	if !gid.IsValid() {
+		return "", errors.New("not a valid group id")
+	}
+
+	type groupMbrArg struct {
+		msg string
+	}
+
+	arg := &groupMbrArg{}
+
+	mdb := db.GetMetaDb()
+
+	mdb.TraversGroupMembers(gid, arg, func(arg, v interface{}) (ret interface{}, err error) {
+		gm := v.(*db.GroupMember)
+		ag := arg.(*groupMbrArg)
+
+		if ag.msg != "" {
+			ag.msg += "\r\n"
+		}
+
+		ag.msg += gm.String()
+
+		return nil, nil
+	})
+
+	return arg.msg, nil
 }

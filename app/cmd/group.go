@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ var groupCmd = &cobra.Command{
 	Short: "list all local group",
 	Long:  `list all local group`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("group called")
+		cmdclient.DefaultCmdSend("", cmdcommon.CMD_LIST_GROUP)
 	},
 }
 

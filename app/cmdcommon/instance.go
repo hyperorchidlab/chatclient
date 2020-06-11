@@ -20,4 +20,5 @@ const (
 	CMD_DEL_GROUP      int32 = 8
 	CMD_JOIN_GROUP     int32 = 9
 	CMD_QUIT_GROUP     int32 = 10
+	CMD_LIST_GROUPMBRS int32 = 11
 )

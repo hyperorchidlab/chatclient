@@ -50,12 +50,37 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 		} else {
 			msg = joinGroup(so.Param[0], so.Param[1])
 		}
+	case cmdcommon.CMD_LIST_GROUPMBRS:
+		if len(so.Param) != 1 {
+			msg = "Param error"
+		} else {
+
+			msg = cso.ListGroupMembers(so.Param[0])
+
+			if msg == "" {
+				msg = "no results"
+			}
+		}
 
 	default:
 		return encapResp("Command Not Found"), nil
 	}
 
 	return encapResp(msg), nil
+}
+
+func (cso *CmdStringOPSrv) ListGroupMembers(gid string) string {
+	cfg := config.GetCCC()
+
+	if cfg.SP == nil {
+		return "Please Register first"
+	}
+	msg, err := chatmeta.ListGroupMembers(groupid.GrpID(gid))
+	if err != nil {
+		return err.Error()
+	}
+
+	return msg
 }
 
 func createAccount(passwd string) string {
