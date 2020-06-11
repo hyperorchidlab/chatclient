@@ -18,6 +18,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +29,20 @@ var friendDelCmd = &cobra.Command{
 	Short: "del a friend",
 	Long:  `del a friend`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("del called")
+		if len(args) > 0 {
+			fmt.Println("command error")
+			return
+		}
+
+		if friendChatAddr == "" {
+			fmt.Println("need friend chat address")
+			return
+		}
+
+		var param []string
+		param = append(param, friendChatAddr)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_DEL_FRIEND, param)
 	},
 }
 
@@ -43,4 +58,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// delCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	friendDelCmd.Flags().StringVarP(&friendChatAddr, "address", "a", "", "chat address")
 }

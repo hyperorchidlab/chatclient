@@ -37,11 +37,24 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 		} else {
 			msg = addFriend(so.Param[0])
 		}
+	case cmdcommon.CMD_DEL_FRIEND:
+		if len(so.Param) != 1 {
+			msg = "Param error"
+		} else {
+			msg = delFriend(so.Param[0])
+		}
+
 	case cmdcommon.CMD_CREATE_GROUP:
 		if len(so.Param) != 1 {
 			msg = "Param error"
 		} else {
 			msg = createGroup(so.Param[0])
+		}
+	case cmdcommon.CMD_DEL_GROUP:
+		if len(so.Param) != 1 {
+			msg = "Param error"
+		} else {
+			msg = delGroup(so.Param[0])
 		}
 
 	case cmdcommon.CMD_JOIN_GROUP:
@@ -49,6 +62,12 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 			msg = "Param error"
 		} else {
 			msg = joinGroup(so.Param[0], so.Param[1])
+		}
+	case cmdcommon.CMD_QUIT_GROUP:
+		if len(so.Param) != 2 {
+			msg = "Param error"
+		} else {
+			msg = quitGroup(so.Param[0], so.Param[1])
 		}
 	case cmdcommon.CMD_LIST_GROUPMBRS:
 		if len(so.Param) != 1 {
@@ -141,6 +160,19 @@ func addFriend(addr string) string {
 	return "Add " + addr + " friend success"
 }
 
+func delFriend(addr string) string {
+	cfg := config.GetCCC()
+	if cfg.SP == nil {
+		return "Please register first"
+	}
+
+	if err := chatmeta.DelFriend(address.ChatAddress(addr)); err != nil {
+		return err.Error()
+	}
+
+	return "Del " + addr + " friend success"
+}
+
 func createGroup(name string) string {
 	cfg := config.GetCCC()
 
@@ -155,6 +187,20 @@ func createGroup(name string) string {
 	return "Create group " + name + " success"
 }
 
+func delGroup(name string) string {
+	cfg := config.GetCCC()
+
+	if cfg.SP == nil {
+		return "Please register first"
+	}
+
+	if err := chatmeta.DelGroup(name); err != nil {
+		return err.Error()
+	}
+
+	return "Delete group " + name + " success"
+}
+
 func joinGroup(groupId string, userid string) string {
 	cfg := config.GetCCC()
 	if cfg.SP == nil {
@@ -166,6 +212,20 @@ func joinGroup(groupId string, userid string) string {
 	}
 
 	return "Join group success"
+
+}
+
+func quitGroup(groupId string, userid string) string {
+	cfg := config.GetCCC()
+	if cfg.SP == nil {
+		return "Please register first"
+	}
+
+	if err := chatmeta.QuitGroup(groupid.GrpID(groupId), userid); err != nil {
+		return err.Error()
+	}
+
+	return "Quit group success"
 
 }
 

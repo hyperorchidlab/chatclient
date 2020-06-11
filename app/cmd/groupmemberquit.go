@@ -18,6 +18,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +29,23 @@ var grpMbrQuitCmd = &cobra.Command{
 	Short: "quit from a group",
 	Long:  `quit from a group`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("quit called")
+		if len(args) > 0 {
+			fmt.Println("command error")
+			return
+		}
+
+		if chatgroupid == "" {
+			fmt.Println("must input group id")
+			return
+		}
+		if chatuserid == "" {
+			fmt.Println("must input user id")
+			return
+		}
+		var param []string
+		param = append(param, chatgroupid, chatuserid)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_QUIT_GROUP, param)
 	},
 }
 
@@ -43,4 +61,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// quitCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	grpMbrQuitCmd.Flags().StringVarP(&chatgroupid, "groupid", "g", "", "group id")
+	grpMbrQuitCmd.Flags().StringVarP(&chatuserid, "userid", "u", "", "user id")
+
 }

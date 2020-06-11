@@ -80,6 +80,70 @@ func AddFriend(addr address.ChatAddress) error {
 
 }
 
+func DelFriend(addr address.ChatAddress) error {
+	if !addr.IsValid() {
+		return errors.New("addr is error")
+	}
+
+	cfg := config.GetCCC()
+
+	localaddr := address.ToAddress(cfg.PubKey)
+
+	if localaddr == addr {
+		return errors.New("can't delete friend")
+	}
+
+	fd := &protocol.FriendDesc{}
+	fd.PeerPubKey = addr.String()
+	fd.SendTime = tools.GetNowMsTime()
+
+	cmd := protocol.UserCommand{}
+	cmd.Op = protocol.DelFriend
+	cmd.SP = *cfg.SP
+
+	serverPub := address.ChatAddress(cfg.SP.SignText.SPubKey).ToPubKey()
+	aesk, _ := chatcrypt.GenerateAesKey(serverPub, cfg.PrivKey)
+
+	data, _ := json.Marshal(*fd)
+
+	ciphertxt, _ := chatcrypt.Encrypt(aesk, data)
+
+	cmd.CipherTxt = base58.Encode(ciphertxt)
+
+	d2s, _ := json.Marshal(cmd)
+
+	var (
+		resp string
+		stat int
+		err  error
+	)
+	log.Println(string(d2s))
+
+	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	if err != nil {
+		return err
+	}
+	if stat != 200 {
+		return errors.New("Get Error Stat Code:" + strconv.Itoa(stat))
+	}
+
+	log.Println(resp)
+
+	reply := &protocol.UCReply{}
+	json.Unmarshal([]byte(resp), reply)
+
+	if reply.CipherTxt != cmd.CipherTxt {
+		return errors.New("del friend failed, cipher text is not equal")
+	}
+
+	if reply.ResultCode == 0 || reply.OP == protocol.DelFriend {
+		return nil
+	}
+
+	return errors.New("del friend failed")
+
+}
+
 func RefreshGroupMembers(gid groupid.GrpID) error {
 	cfg := config.GetCCC()
 

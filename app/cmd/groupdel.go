@@ -18,6 +18,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +29,18 @@ var groupDelCmd = &cobra.Command{
 	Short: "delete a group",
 	Long:  `delete a group`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("del called")
+		if len(args) > 0 {
+			fmt.Println("Command error")
+			return
+		}
+		if groupchatname == "" {
+			fmt.Println("need set a group name")
+			return
+		}
+		var param []string
+		param = append(param, groupchatname)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_DEL_GROUP, param)
 	},
 }
 
@@ -43,4 +56,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// delCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	groupDelCmd.Flags().StringVarP(&groupchatname, "name", "n", "", "group name")
 }
