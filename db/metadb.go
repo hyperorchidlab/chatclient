@@ -623,7 +623,6 @@ func (md *MetaDb) loadGroupMember() error {
 
 		} else {
 			if len(line) > 0 {
-
 				ul := line
 				if line[0] == '-' {
 					ul = line[1:]
@@ -638,8 +637,11 @@ func (md *MetaDb) loadGroupMember() error {
 				}
 
 				gm := gmo.GrpMbr
-
-				md.addGroupMember(gmo.GroupId, gm.AliasName, gm.Addr, gm.Agree, gm.JoinGroupTime)
+				if line[0] == '-' {
+					md.delGroupMember(gmo.GroupId,gm.Addr)
+				}else{
+					md.addGroupMember(gmo.GroupId, gm.AliasName, gm.Addr, gm.Agree, gm.JoinGroupTime)
+				}
 
 			}
 		}

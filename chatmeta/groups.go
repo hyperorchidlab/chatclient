@@ -182,7 +182,7 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 		return errors.New("join group failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.AddGroup {
+	if reply.ResultCode == 0 && reply.OP == protocol.AddGroup {
 		return nil
 	}
 
@@ -244,7 +244,7 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 		return errors.New("quit group failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.QuitGroup {
+	if reply.ResultCode == 0 && reply.OP == protocol.QuitGroup {
 		return nil
 	}
 

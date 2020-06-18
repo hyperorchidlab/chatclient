@@ -37,6 +37,7 @@ type ChatClientConfig struct {
 
 	ChatDataPath string `json:"chat_data_path"`
 	MetaDataPath string `json:"meta_data_path"`
+	ChatGrpKeyPath string `json:"chat_grp_key_path"`
 }
 
 var (
@@ -53,6 +54,7 @@ func (bc *ChatClientConfig) InitCfg() *ChatClientConfig {
 	bc.UserFile = "chat_user.info"
 	bc.ChatDataPath = "chat-data"
 	bc.MetaDataPath = "meta-data"
+	bc.ChatGrpKeyPath = "group-key.db"
 
 	return bc
 }
@@ -197,6 +199,11 @@ func (bc *ChatClientConfig) GetMetaPath() string {
 
 	return mtp
 }
+
+func (bc *ChatClientConfig)GetGrpKeysDbPath() string  {
+	return path.Join(GetCCCHomeDir(),bc.ChatGrpKeyPath)
+}
+
 
 func (bc *ChatClientConfig) GetAjaxPath() string {
 	host := bc.RemoteHttpServer + ":" + strconv.Itoa(bc.RemoteHttpPort)
