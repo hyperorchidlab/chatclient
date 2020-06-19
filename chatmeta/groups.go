@@ -9,6 +9,7 @@ import (
 	"github.com/kprc/chat-protocol/protocol"
 	"github.com/kprc/chatclient/chatcrypt"
 	"github.com/kprc/chatclient/config"
+	"github.com/kprc/chatclient/db"
 	"github.com/kprc/nbsnetwork/tools"
 	"github.com/rickeyliao/ServiceAgent/common"
 	"log"
@@ -57,13 +58,28 @@ func CreateGroup(groupName string) error {
 	log.Println(resp)
 
 	reply := &protocol.UCReply{}
-	json.Unmarshal([]byte(resp), reply)
-
-	if reply.CipherTxt != uc.CipherTxt {
+	err = json.Unmarshal([]byte(resp), reply)
+	if err != nil {
+		return err
+	}
+	if reply.CipherTxt != "" {
 		return errors.New("create group failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.AddGroup {
+	if reply.ResultCode == 0 && reply.OP == protocol.AddGroup {
+		cipherBytes := base58.Decode(reply.CipherTxt)
+		var plaintxt []byte
+		plaintxt, err = chatcrypt.Decrypt(aesk, cipherBytes)
+		resp := &protocol.GroupResp{}
+		err = json.Unmarshal(plaintxt, &resp.GCI)
+		if err != nil {
+			log.Println("group create info error")
+			return nil
+		}
+
+		mdb := db.GetMetaDb()
+		mdb.AddGroup(resp.GCI.GroupName, resp.GCI.GID, resp.GCI.IsOwner, resp.GCI.CreateTime)
+
 		return nil
 	}
 
@@ -71,11 +87,10 @@ func CreateGroup(groupName string) error {
 
 }
 
-func DelGroup(groupName string) error {
+func DelGroup(gid groupid.GrpID) error {
 
 	gd := &protocol.GroupDesc{}
-	gd.GroupAlias = groupName
-	gd.GroupID = groupid.NewGroupId().String()
+	gd.GroupID = gid.String()
 	gd.SendTime = tools.GetNowMsTime()
 
 	cfg := config.GetCCC()
@@ -119,7 +134,9 @@ func DelGroup(groupName string) error {
 		return errors.New("delete group failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.DelGroup {
+	if reply.ResultCode == 0 && reply.OP == protocol.DelGroup {
+		mdb := db.GetMetaDb()
+		mdb.DelGroup(gid)
 		return nil
 	}
 
@@ -178,11 +195,28 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 	reply := &protocol.UCReply{}
 	json.Unmarshal([]byte(resp), reply)
 
-	if reply.CipherTxt != uc.CipherTxt {
-		return errors.New("join group failed, cipher text is not equal")
+	if reply.CipherTxt != "" {
+		return errors.New("join group failed, cipher text is empty")
 	}
 
 	if reply.ResultCode == 0 && reply.OP == protocol.AddGroup {
+		var plainTxt []byte
+		plainTxt, err = chatcrypt.Decrypt(aesk, base58.Decode(reply.CipherTxt))
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		resp := &protocol.GroupMemberResp{}
+		err = json.Unmarshal(plainTxt, &resp.GMAI)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+
+		mdb := db.GetMetaDb()
+		gi := &resp.GMAI
+		mdb.AddGroupMember(gi.GID, gi.FriendName, gi.FriendAddr, gi.Agree, gi.JoinTime)
+
 		return nil
 	}
 
@@ -245,6 +279,8 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	}
 
 	if reply.ResultCode == 0 && reply.OP == protocol.QuitGroup {
+		mdb := db.GetMetaDb()
+		mdb.DelGroupMember(gid, address.ChatAddress(friendPk))
 		return nil
 	}
 

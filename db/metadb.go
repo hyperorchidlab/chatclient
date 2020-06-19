@@ -638,8 +638,8 @@ func (md *MetaDb) loadGroupMember() error {
 
 				gm := gmo.GrpMbr
 				if line[0] == '-' {
-					md.delGroupMember(gmo.GroupId,gm.Addr)
-				}else{
+					md.delGroupMember(gmo.GroupId, gm.Addr)
+				} else {
 					md.addGroupMember(gmo.GroupId, gm.AliasName, gm.Addr, gm.Agree, gm.JoinGroupTime)
 				}
 

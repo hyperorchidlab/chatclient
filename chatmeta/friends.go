@@ -66,13 +66,30 @@ func AddFriend(addr address.ChatAddress) error {
 	log.Println(resp)
 
 	reply := &protocol.UCReply{}
-	json.Unmarshal([]byte(resp), reply)
-
-	if reply.CipherTxt != cmd.CipherTxt {
-		return errors.New("add friend failed, cipher text is not equal")
+	err = json.Unmarshal([]byte(resp), reply)
+	if err != nil {
+		return err
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.AddFriend {
+	if reply.CipherTxt == "" {
+		return errors.New("add friend failed, cipher text is not set")
+	}
+
+	if reply.ResultCode == 0 && reply.OP == protocol.AddFriend {
+
+		cipherbytes := base58.Decode(reply.CipherTxt)
+		var plaintxt []byte
+		plaintxt, err = chatcrypt.Decrypt(aesk, cipherbytes)
+		resp := &protocol.FriendAddResp{}
+		err = json.Unmarshal(plaintxt, &resp.FAI)
+		if err != nil {
+			log.Println("friend info error")
+			return nil
+		}
+
+		mdb := db.GetMetaDb()
+		mdb.AddFriend(resp.FAI.AliasName, resp.FAI.Addr, resp.FAI.Agree, resp.FAI.AddTime)
+
 		return nil
 	}
 
@@ -136,7 +153,9 @@ func DelFriend(addr address.ChatAddress) error {
 		return errors.New("del friend failed, cipher text is not equal")
 	}
 
-	if reply.ResultCode == 0 || reply.OP == protocol.DelFriend {
+	if reply.ResultCode == 0 && reply.OP == protocol.DelFriend {
+		mdb := db.GetMetaDb()
+		mdb.DelFriend(addr)
 		return nil
 	}
 

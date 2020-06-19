@@ -35,8 +35,8 @@ type ChatClientConfig struct {
 
 	UpdateFriendTime int64 `json:"updatefriendtime"`
 
-	ChatDataPath string `json:"chat_data_path"`
-	MetaDataPath string `json:"meta_data_path"`
+	ChatDataPath   string `json:"chat_data_path"`
+	MetaDataPath   string `json:"meta_data_path"`
 	ChatGrpKeyPath string `json:"chat_grp_key_path"`
 }
 
@@ -200,10 +200,9 @@ func (bc *ChatClientConfig) GetMetaPath() string {
 	return mtp
 }
 
-func (bc *ChatClientConfig)GetGrpKeysDbPath() string  {
-	return path.Join(GetCCCHomeDir(),bc.ChatGrpKeyPath)
+func (bc *ChatClientConfig) GetGrpKeysDbPath() string {
+	return path.Join(GetCCCHomeDir(), bc.ChatGrpKeyPath)
 }
-
 
 func (bc *ChatClientConfig) GetAjaxPath() string {
 	host := bc.RemoteHttpServer + ":" + strconv.Itoa(bc.RemoteHttpPort)

@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var groupchatid string
+
 // delCmd represents the del command
 var groupDelCmd = &cobra.Command{
 	Use:   "del",
@@ -33,12 +35,12 @@ var groupDelCmd = &cobra.Command{
 			fmt.Println("Command error")
 			return
 		}
-		if groupchatname == "" {
-			fmt.Println("need set a group name")
+		if groupchatid == "" {
+			fmt.Println("need set a group id")
 			return
 		}
 		var param []string
-		param = append(param, groupchatname)
+		param = append(param, groupchatid)
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_DEL_GROUP, param)
 	},
@@ -56,5 +58,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// delCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	groupDelCmd.Flags().StringVarP(&groupchatname, "name", "n", "", "group name")
+	groupDelCmd.Flags().StringVarP(&groupchatid, "groupid", "g", "", "group id")
 }

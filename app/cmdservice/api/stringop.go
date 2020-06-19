@@ -187,18 +187,21 @@ func createGroup(name string) string {
 	return "Create group " + name + " success"
 }
 
-func delGroup(name string) string {
+func delGroup(gid string) string {
 	cfg := config.GetCCC()
 
 	if cfg.SP == nil {
 		return "Please register first"
 	}
+	if !groupid.GrpID(gid).IsValid() {
+		return "not a group id"
+	}
 
-	if err := chatmeta.DelGroup(name); err != nil {
+	if err := chatmeta.DelGroup(groupid.GrpID(gid)); err != nil {
 		return err.Error()
 	}
 
-	return "Delete group " + name + " success"
+	return "Delete group " + gid + " success"
 }
 
 func joinGroup(groupId string, userid string) string {

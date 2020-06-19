@@ -5,10 +5,10 @@ import (
 	"github.com/kprc/nbsnetwork/db"
 	"sync"
 
-	"github.com/kprc/chatclient/config"
+	"crypto/sha256"
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/kprc/chatclient/chatcrypt"
-	"crypto/sha256"
+	"github.com/kprc/chatclient/config"
 )
 
 type GroupKeysDb struct {
@@ -87,10 +87,10 @@ func GenKey(pks [][]byte, gpks [][]byte) string {
 
 }
 
-func GenKeyByPubKeys(pks [][]byte,owner []byte) string{
+func GenKeyByPubKeys(pks [][]byte, owner []byte) string {
 	r := chatcrypt.InsertionSortDArray(pks)
 
-	r = append(r,owner)
+	r = append(r, owner)
 
 	var shabytes []byte
 
