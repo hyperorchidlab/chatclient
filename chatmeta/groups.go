@@ -156,7 +156,7 @@ func groupIsOwner(gid groupid.GrpID) bool {
 	return g.IsOwner
 }
 
-func getAllAddress(gid groupid.GrpID, friendPK string) ([]address.ChatAddress, error) {
+func getAllAddress(gid groupid.GrpID, friendPK string, drop bool) ([]address.ChatAddress, error) {
 
 	mdb := db.GetMetaDb()
 
@@ -175,13 +175,31 @@ func getAllAddress(gid groupid.GrpID, friendPK string) ([]address.ChatAddress, e
 		return nil, nil
 	})
 
+	idx := 0
+
 	for i := 0; i < len(arg.addrs); i++ {
 		if arg.addrs[i].String() == friendPK {
-			return nil, errors.New("Address is exists")
+			if !drop {
+				return nil, errors.New("Address is exists")
+			} else {
+				idx = i
+				break
+			}
 		}
 	}
 
-	arg.addrs = append(arg.addrs, address.ChatAddress(friendPK))
+	if !drop {
+		arg.addrs = append(arg.addrs, address.ChatAddress(friendPK))
+	} else {
+
+		al := len(arg.addrs)
+		if al == idx {
+			return nil, errors.New("not found address")
+		}
+
+		arg.addrs[idx] = arg.addrs[al-1]
+		arg.addrs = arg.addrs[:al-1]
+	}
 
 	return arg.addrs, nil
 }
@@ -208,8 +226,8 @@ func bytesArrays2StringArrays(byteArrs [][]byte) (stringArrs []string) {
 	return
 }
 
-func genGroupKeys(gid groupid.GrpID, friendPK string) (pkeys []string, gkeys []string, err error) {
-	addrs, err := getAllAddress(gid, friendPK)
+func genGroupKeys(gid groupid.GrpID, friendPK string, drop bool) (pkeys []string, gkeys []string, err error) {
+	addrs, err := getAllAddress(gid, friendPK, drop)
 	if err != nil {
 		return
 	}
@@ -249,7 +267,7 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 		pks []string
 		gks []string
 	)
-	pks, gks, err = genGroupKeys(gid, friendPk)
+	pks, gks, err = genGroupKeys(gid, friendPk, false)
 	if err != nil {
 		errors.New("generate group key failed")
 	}
@@ -319,6 +337,14 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 		gi := &resp.GMAI
 		mdb.AddGroupMember(gi.GID, gi.FriendName, gi.FriendAddr, gi.Agree, gi.JoinTime)
 
+		gkdb := db.GetChatGrpKeysDb()
+		hks := gkdb.Insert2(gmd.GKeys, gmd.Pubkeys)
+		if hks != gi.GKeyHash {
+			log.Println(" group key hash not corrected")
+		}
+
+		db.UpdateGroupKeyMem(gi.GID, hks)
+
 		return nil
 	}
 
@@ -334,6 +360,19 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 		return errors.New("user id not correct")
 	}
 
+	if !groupIsOwner(gid) {
+		return errors.New("group is not owner")
+	}
+	var (
+		err error
+		pks []string
+		gks []string
+	)
+	pks, gks, err = genGroupKeys(gid, friendPk, false)
+	if err != nil {
+		errors.New("generate group key failed")
+	}
+
 	cfg := config.GetCCC()
 
 	uc := &protocol.UserCommand{}
@@ -344,6 +383,8 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	gmd.GroupID = gid.String()
 	gmd.Friend = friendPk
 	gmd.SendTime = tools.GetNowMsTime()
+	gmd.Pubkeys = pks
+	gmd.GKeys = gks
 
 	serverPub := address.ChatAddress(cfg.SP.SignText.SPubKey).ToPubKey()
 	aesk, _ := chatcrypt.GenerateAesKey(serverPub, cfg.PrivKey)
@@ -359,7 +400,6 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	var (
 		resp string
 		stat int
-		err  error
 	)
 	log.Println(string(d2s))
 
@@ -381,8 +421,32 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	}
 
 	if reply.ResultCode == 0 && reply.OP == protocol.QuitGroup {
+
+		var plainTxt []byte
+		plainTxt, err = chatcrypt.Decrypt(aesk, base58.Decode(reply.CipherTxt))
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+		resp := &protocol.GroupMemberResp{}
+		err = json.Unmarshal(plainTxt, &resp.GMAI)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
+
 		mdb := db.GetMetaDb()
 		mdb.DelGroupMember(gid, address.ChatAddress(friendPk))
+
+		gkdb := db.GetChatGrpKeysDb()
+		hashk := gkdb.Insert2(gmd.GKeys, gmd.Pubkeys)
+
+		if hashk != resp.GMAI.GKeyHash {
+			log.Println("group key is not equals")
+		}
+
+		db.UpdateGroupKeyMem(resp.GMAI.GID, hashk)
+
 		return nil
 	}
 

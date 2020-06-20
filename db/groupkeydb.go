@@ -84,7 +84,6 @@ func GenKey(pks [][]byte, gpks [][]byte) string {
 	hash := sha256.Sum256(shabytes)
 
 	return base58.Encode(hash[:])
-
 }
 
 func GenKeyByPubKeys(pks [][]byte, owner []byte) string {

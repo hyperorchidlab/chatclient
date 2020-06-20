@@ -228,9 +228,12 @@ func RefreshGroupMembers(gid groupid.GrpID) error {
 		return err
 	}
 
+	db.UpdateGroupKeyMem(gid, gml.Hashk)
+	gkdb := db.GetChatGrpKeysDb()
+	gkdb.Insert2(gml.Gkeys, gml.PKeys)
+
 	for i := 0; i < len(gml.FD); i++ {
 		fd := &gml.FD[i]
-
 		insert2GroupMember(gid, fd)
 	}
 
