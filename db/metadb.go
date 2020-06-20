@@ -23,6 +23,7 @@ type MetaDbIntf interface {
 
 	AddGroup(name string, id groupid.GrpID, isOwner bool, createTime int64)
 	DelGroup(id groupid.GrpID) error
+	FindGroup(gid groupid.GrpID) (g *Group, err error)
 
 	AddGroupMember(id groupid.GrpID, name string, addr address.ChatAddress, agree int, joinTime int64) error
 	DelGroupMember(id groupid.GrpID, addr address.ChatAddress) error
@@ -306,6 +307,22 @@ func (md *MetaDb) delGroup(id groupid.GrpID) (*Group, error) {
 		return g, nil
 	}
 	return nil, errors.New("members in the group")
+}
+
+func (md *MetaDb) FindGroup(gid groupid.GrpID) (g *Group, err error) {
+	md.Lock.Lock()
+	defer md.Lock.Unlock()
+
+	gArg := &Group{GroupId: gid}
+
+	node := md.LGroup.Find(gArg)
+	if node == nil {
+		return nil, errors.New("not find")
+	}
+
+	g = node.Value.(*Group)
+
+	return
 }
 
 type GroupMbrWithOwner struct {
