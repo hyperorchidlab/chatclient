@@ -3,6 +3,7 @@ package chatcrypt
 import (
 	"bytes"
 	"crypto/ed25519"
+	"github.com/btcsuite/btcutil/base58"
 
 	"errors"
 )
@@ -99,6 +100,22 @@ func DeriveGroupKey(priv ed25519.PrivateKey, groupPKs [][]byte, pubkeys [][]byte
 	}
 
 	return
+}
+
+func DeriveGroupKey2(priv ed25519.PrivateKey, groupPKs []string, pubkeys []string) (aes []byte, err error) {
+	var (
+		gkeys [][]byte
+		pkeys [][]byte
+	)
+	for i := 0; i < len(groupPKs); i++ {
+		gkeys = append(gkeys, base58.Decode(groupPKs[i]))
+	}
+	for i := 0; i < len(pubkeys); i++ {
+		pkeys = append(pkeys, base58.Decode(pubkeys[i]))
+	}
+
+	return DeriveGroupKey(priv, gkeys, pkeys)
+
 }
 
 func InsertionSortDArray(arr [][]byte) [][]byte {
