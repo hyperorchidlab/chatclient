@@ -36,8 +36,12 @@ type ChatClientConfig struct {
 	UpdateFriendTime int64 `json:"updatefriendtime"`
 
 	ChatDataPath   string `json:"chat_data_path"`
+	ChatFriendPath string `json:"chat_friend_path"`
+	ChatGroupPath  string `json:"chat_group_path"`
 	MetaDataPath   string `json:"meta_data_path"`
 	ChatGrpKeyPath string `json:"chat_grp_key_path"`
+
+	LastFriendMsg int `json:"last_friend_msg"`
 }
 
 var (
@@ -53,6 +57,8 @@ func (bc *ChatClientConfig) InitCfg() *ChatClientConfig {
 	bc.KeyFile = "chat_client.key"
 	bc.UserFile = "chat_user.info"
 	bc.ChatDataPath = "chat-data"
+	bc.ChatFriendPath = "friend"
+	bc.ChatGroupPath = "group"
 	bc.MetaDataPath = "meta-data"
 	bc.ChatGrpKeyPath = "group-key.db"
 
@@ -198,6 +204,26 @@ func (bc *ChatClientConfig) GetMetaPath() string {
 	}
 
 	return mtp
+}
+
+func (bc *ChatClientConfig) GetChatFriendPath() string {
+	fp := path.Join(GetCCCHomeDir(), bc.ChatDataPath, bc.ChatFriendPath)
+
+	if !tools.FileExists(fp) {
+		os.MkdirAll(fp, 0755)
+	}
+
+	return fp
+}
+
+func (bc *ChatClientConfig) GetChatGroupPath() string {
+	gp := path.Join(GetCCCHomeDir(), bc.ChatDataPath, bc.ChatGroupPath)
+
+	if !tools.FileExists(gp) {
+		os.MkdirAll(gp, 0755)
+	}
+
+	return gp
 }
 
 func (bc *ChatClientConfig) GetGrpKeysDbPath() string {

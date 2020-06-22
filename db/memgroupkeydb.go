@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chat-protocol/groupid"
 	"github.com/kprc/chatclient/chatcrypt"
@@ -22,9 +23,6 @@ var (
 func UpdateGroupKeyMem(gid groupid.GrpID, hashKey string) {
 	groupKeyMemLock.Lock()
 	defer groupKeyMemLock.Unlock()
-	//if groupKeyMemDb == nil {
-	//	groupKeyMemDb = make(map[groupid.GrpID]*GroupKeyMemInfo)
-	//}
 
 	m := &GroupKeyMemInfo{HashKey: hashKey}
 
@@ -90,6 +88,20 @@ func GetMemFriendAesKey(fid address.ChatAddress) (aesk []byte, err error) {
 		return v, nil
 	}
 
+}
+
+func EncryptP2pMsg(message string, friend address.ChatAddress) (string, error) {
+	aesk, err := GetMemFriendAesKey(friend)
+	if err != nil {
+		return "", err
+	}
+	var cipherTxt []byte
+	cipherTxt, err = chatcrypt.Encrypt(aesk, []byte(message))
+	if err != nil {
+		return "", err
+	}
+
+	return base58.Encode(cipherTxt), nil
 }
 
 func init() {
