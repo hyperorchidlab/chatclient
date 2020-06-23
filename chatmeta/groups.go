@@ -62,8 +62,8 @@ func CreateGroup(groupName string) error {
 	if err != nil {
 		return err
 	}
-	if reply.CipherTxt != "" {
-		return errors.New("create group failed, cipher text is not equal")
+	if reply.CipherTxt == "" {
+		return errors.New("create group failed, cipher text is none")
 	}
 
 	if reply.ResultCode == 0 && reply.OP == protocol.AddGroup {
@@ -167,7 +167,7 @@ func getAllAddress(gid groupid.GrpID, friendPK string, drop bool) ([]address.Cha
 	arg := &chatAddrs{}
 
 	mdb.TraversGroupMembers(gid, arg, func(arg, v interface{}) (ret interface{}, err error) {
-		m := v.(db.GroupMember)
+		m := v.(*db.GroupMember)
 		a := arg.(*chatAddrs)
 
 		a.addrs = append(a.addrs, m.Addr)
@@ -315,11 +315,11 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 	reply := &protocol.UCReply{}
 	json.Unmarshal([]byte(resp), reply)
 
-	if reply.CipherTxt != "" {
+	if reply.CipherTxt == "" {
 		return errors.New("join group failed, cipher text is empty")
 	}
 
-	if reply.ResultCode == 0 && reply.OP == protocol.AddGroup {
+	if reply.ResultCode == 0 && reply.OP == protocol.JoinGroup {
 		var plainTxt []byte
 		plainTxt, err = chatcrypt.Decrypt(aesk, base58.Decode(reply.CipherTxt))
 		if err != nil {
@@ -416,7 +416,7 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	reply := &protocol.UCReply{}
 	json.Unmarshal([]byte(resp), reply)
 
-	if reply.CipherTxt != uc.CipherTxt {
+	if reply.CipherTxt == "" {
 		return errors.New("quit group failed, cipher text is not equal")
 	}
 

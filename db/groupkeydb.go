@@ -127,6 +127,9 @@ func (gkdb *GroupKeysDb) Insert(gks [][]byte, pks [][]byte) (key string) {
 func (gkdb *GroupKeysDb) Insert2(gks []string, pks []string) (key string) {
 	gk := &GroupKeys{}
 
+	gk.PubKeys = pks
+	gk.GroupKeys = gks
+
 	key = gk.GenKey()
 
 	if _, err := gkdb.NbsDbInter.Find(key); err != nil {
