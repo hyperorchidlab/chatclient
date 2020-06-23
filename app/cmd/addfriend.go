@@ -27,7 +27,7 @@ var friendChatAddr string
 
 // addfriendCmd represents the addfriend command
 var addfriendCmd = &cobra.Command{
-	Use:   "addfriend",
+	Use:   "add",
 	Short: "add friend",
 	Long:  `add friend`,
 	Run: func(cmd *cobra.Command, args []string) {

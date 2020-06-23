@@ -76,8 +76,6 @@ func (bc *ChatClientConfig) Load() *ChatClientConfig {
 		return nil
 	}
 
-	//bc1:=&BASDConfig{}
-
 	err = json.Unmarshal(jbytes, bc)
 	if err != nil {
 		log.Println("load configuration unmarshal failed", err)
