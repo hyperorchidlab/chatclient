@@ -65,7 +65,7 @@ func SendP2pMsg(friend address.ChatAddress, message string) error {
 		return err
 	}
 	if reply.CipherTxt != "" {
-		return errors.New("create group failed, cipher text is not equal")
+		return errors.New("send p2p msg failed, cipher text is none")
 	}
 
 	if reply.ResultCode == 0 && reply.OP == protocol.StoreP2pMsg {
@@ -75,11 +75,11 @@ func SendP2pMsg(friend address.ChatAddress, message string) error {
 	return errors.New("Send message failed")
 }
 
-func FetchMessage(friend address.ChatAddress, begin, n int) error {
+func FetchP2pMessage(friend address.ChatAddress, begin, n int) error {
 	cfg := config.GetCCC()
 
 	uc := protocol.UserCommand{}
-	uc.Op = protocol.FetchGMsg
+	uc.Op = protocol.FetchP2pMsg
 	uc.SP = *cfg.SP
 
 	pf := &protocol.P2pMsgFetch{PeerPk: friend.String(), Begin: begin, Count: n}
@@ -118,10 +118,10 @@ func FetchMessage(friend address.ChatAddress, begin, n int) error {
 		return err
 	}
 	if reply.CipherTxt != "" {
-		return errors.New("create group failed, cipher text is not equal")
+		return errors.New("fetch p2p msg failed, cipher text is none")
 	}
 
-	if reply.ResultCode == 0 && reply.OP == protocol.FetchGMsg {
+	if reply.ResultCode == 0 && reply.OP == protocol.FetchP2pMsg {
 		cipherBytes := base58.Decode(reply.CipherTxt)
 		var plaintxt []byte
 		plaintxt, err = chatcrypt.Decrypt(aesk, cipherBytes)
@@ -149,6 +149,6 @@ func FetchMessage(friend address.ChatAddress, begin, n int) error {
 		return nil
 	}
 
-	return errors.New("Fetch message failed")
+	return errors.New("Fetch p2p message failed")
 
 }

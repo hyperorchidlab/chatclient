@@ -40,6 +40,18 @@ func GetMemGroupKey(gid groupid.GrpID) *GroupKeyMemInfo {
 	}
 }
 
+func GetMemGroupHashKey(gid groupid.GrpID) (string, error) {
+	groupKeyMemLock.Lock()
+	defer groupKeyMemLock.Unlock()
+
+	if v, ok := groupKeyMemDb[gid]; !ok {
+		return "", errors.New("no groupkey")
+	} else {
+		return v.HashKey, nil
+	}
+
+}
+
 func GetMemGroupAesKey(gid groupid.GrpID) (aesk []byte, err error) {
 	groupKeyMemLock.Lock()
 	defer groupKeyMemLock.Unlock()
@@ -57,6 +69,22 @@ func GetMemGroupAesKey(gid groupid.GrpID) (aesk []byte, err error) {
 		v.AesKey = aesk
 		return aesk, nil
 	}
+}
+
+func EncryptGroupMsg(message string, gid groupid.GrpID) (string, error) {
+	aesk, err := GetMemGroupAesKey(gid)
+	if err != nil {
+		return "", err
+	}
+
+	var cipherTxt []byte
+	cipherTxt, err = chatcrypt.Encrypt(aesk, []byte(message))
+	if err != nil {
+		return "", err
+	}
+
+	return base58.Encode(cipherTxt), nil
+
 }
 
 type FriendKeyMemInfo struct {

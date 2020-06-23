@@ -18,7 +18,7 @@ type FriendMsg struct {
 	IsOwner bool   `json:"is_owner"`
 	Msg     string `json:"msg"`
 	Counter int    `json:"cnt"`
-	LCnt    int    `json:"l_cnt"`
+	LCnt    int    `json:"-"`
 }
 
 func newFriendMsgDb() *FriendHistoryDB {
