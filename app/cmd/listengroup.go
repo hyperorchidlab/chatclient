@@ -16,10 +16,14 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
+	"log"
 
 	"github.com/spf13/cobra"
 )
+
+var listengroupaddr string
 
 // listengroupCmd represents the listengroup command
 var listengroupCmd = &cobra.Command{
@@ -27,7 +31,20 @@ var listengroupCmd = &cobra.Command{
 	Short: "listen a group message",
 	Long: `listen a group message`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("listengroup called")
+		if _, err := cmdcommon.IsProcessStarted(); err != nil {
+			log.Println(err)
+			return
+		}
+
+		if listengroupaddr == ""{
+			log.Println("please input group id")
+			return
+		}
+
+		var param []string
+		param = append(param,listengroupaddr)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_GROUP, param)
 	},
 }
 
@@ -43,4 +60,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// listengroupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listengroupCmd.Flags().StringVarP(&listengroupaddr,"group","g","","group id")
 }

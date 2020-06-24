@@ -80,6 +80,16 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 				msg = "no results"
 			}
 		}
+	case cmdcommon.CMD_LISTEN_FRIEND:
+		if len(so.Param) != 1{
+			msg = "Param error"
+		}else{
+			//c:=time.Tick(time.Second)
+			//select {
+			//case <-c:
+			//
+			//}
+		}
 
 	default:
 		return encapResp("Command Not Found"), nil

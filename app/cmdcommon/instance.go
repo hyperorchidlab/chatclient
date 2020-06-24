@@ -21,4 +21,8 @@ const (
 	CMD_JOIN_GROUP     int32 = 9
 	CMD_QUIT_GROUP     int32 = 10
 	CMD_LIST_GROUPMBRS int32 = 11
+	CMD_LISTEN_FRIEND  int32 = 12
+	CMD_LISTEN_GROUP   int32 = 13
+	CMD_SEND_P2PMSG    int32 = 14
+	CMD_SEND_GMSG      int32 = 15
 )

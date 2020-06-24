@@ -20,6 +20,7 @@ import (
 type MetaDbIntf interface {
 	AddFriend(alias string, addr address.ChatAddress, agree int, addTime int64)
 	DelFriend(addr address.ChatAddress)
+	FindFriend(addr address.ChatAddress) (*Friend,error)
 
 	AddGroup(name string, id groupid.GrpID, isOwner bool, createTime int64)
 	DelGroup(id groupid.GrpID) error
@@ -214,6 +215,20 @@ func (md *MetaDb) DelFriend(addr address.ChatAddress) {
 	}
 
 }
+
+func (md *MetaDb)FindFriend(addr address.ChatAddress) (*Friend,error)  {
+	md.Lock.Lock()
+	defer md.Lock.Unlock()
+
+	farg:=Friend{Addr: addr}
+
+	if f:=md.LFriend.Find(farg);f==nil{
+		return nil,errors.New("not found")
+	}else{
+		return f.Value.(*Friend),nil
+	}
+}
+
 
 func (md *MetaDb) delFriend(addr address.ChatAddress) *Friend {
 	frd := &Friend{Addr: addr}

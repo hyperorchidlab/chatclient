@@ -16,48 +16,31 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/kprc/chatclient/app/cmdclient"
-	"github.com/kprc/chatclient/app/cmdcommon"
-	"log"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
-var listenfriendaddr string
-// listenfriendCmd represents the listenfriend command
-var listenfriendCmd = &cobra.Command{
-	Use:   "friend",
-	Short: "listen a friend message",
-	Long: `listen a friend message`,
+// listengroupquitCmd represents the listengroupquit command
+var listengroupquitCmd = &cobra.Command{
+	Use:   "group",
+	Short: "quit group listen service",
+	Long: `quit group listen service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if _, err := cmdcommon.IsProcessStarted(); err != nil {
-			log.Println(err)
-			return
-		}
-
-		if listenfriendaddr == ""{
-			log.Println("please input friend address")
-			return
-		}
-
-		var param []string
-		param = append(param,listenfriendaddr)
-
-		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_FRIEND, param)
+		fmt.Println("listengroupquit called")
 	},
 }
 
 func init() {
-	listenCmd.AddCommand(listenfriendCmd)
+	listenQuitCmd.AddCommand(listengroupquitCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// listenfriendCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// listengroupquitCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// listenfriendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	listenfriendCmd.Flags().StringVarP(&listenfriendaddr,"friend","f","","friend address")
+	// listengroupquitCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

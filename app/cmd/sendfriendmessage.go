@@ -16,9 +16,16 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
+	"log"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	sendP2pMsg string
+	sendP2pMsgFriend string
 )
 
 // sendfriendmessageCmd represents the sendfriendmessage command
@@ -27,7 +34,26 @@ var sendfriendmessageCmd = &cobra.Command{
 	Short: "send a message to a friend",
 	Long: `send a message to a friend`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("sendfriendmessage called")
+		if _, err := cmdcommon.IsProcessStarted(); err != nil {
+			log.Println(err)
+			return
+		}
+
+		if sendP2pMsg == ""{
+			log.Println("please input message")
+			return
+		}
+
+		if sendP2pMsgFriend == ""{
+			log.Println("please input friend")
+			return
+		}
+
+
+		var param []string
+		param = append(param,sendP2pMsg,sendP2pMsgFriend)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_SEND_P2PMSG, param)
 	},
 }
 
@@ -43,4 +69,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// sendfriendmessageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	sendfriendmessageCmd.Flags().StringVarP(&sendP2pMsg,"message","m","","message to send friend")
+	sendfriendmessageCmd.Flags().StringVarP(&sendP2pMsgFriend,"friend","f","","friend for receive the message")
 }

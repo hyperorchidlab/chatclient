@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/kprc/chatclient/app/cmdclient"
 	"github.com/kprc/chatclient/app/cmdcommon"
@@ -38,6 +39,10 @@ var addfriendCmd = &cobra.Command{
 
 		if friendChatAddr == "" {
 			fmt.Println("need friend chat address")
+			return
+		}
+		if _, err := cmdcommon.IsProcessStarted(); err != nil {
+			log.Println(err)
 			return
 		}
 
