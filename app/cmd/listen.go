@@ -25,7 +25,7 @@ import (
 var listenCmd = &cobra.Command{
 	Use:   "listen",
 	Short: "listen a friend|group message",
-	Long: `listen a friend|group message`,
+	Long:  `listen a friend|group message`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("command is not complete")
 	},

@@ -25,7 +25,7 @@ import (
 var listengroupquitCmd = &cobra.Command{
 	Use:   "group",
 	Short: "quit group listen service",
-	Long: `quit group listen service`,
+	Long:  `quit group listen service`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("listengroupquit called")
 	},

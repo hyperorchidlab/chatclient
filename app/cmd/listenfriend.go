@@ -24,24 +24,25 @@ import (
 )
 
 var listenfriendaddr string
+
 // listenfriendCmd represents the listenfriend command
 var listenfriendCmd = &cobra.Command{
 	Use:   "friend",
 	Short: "listen a friend message",
-	Long: `listen a friend message`,
+	Long:  `listen a friend message`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if _, err := cmdcommon.IsProcessStarted(); err != nil {
 			log.Println(err)
 			return
 		}
 
-		if listenfriendaddr == ""{
+		if listenfriendaddr == "" {
 			log.Println("please input friend address")
 			return
 		}
 
 		var param []string
-		param = append(param,listenfriendaddr)
+		param = append(param, listenfriendaddr)
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_FRIEND, param)
 	},
@@ -59,5 +60,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// listenfriendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	listenfriendCmd.Flags().StringVarP(&listenfriendaddr,"friend","f","","friend address")
+	listenfriendCmd.Flags().StringVarP(&listenfriendaddr, "friend", "f", "", "friend address")
 }

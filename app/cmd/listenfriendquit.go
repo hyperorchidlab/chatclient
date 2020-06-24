@@ -25,7 +25,7 @@ import (
 var listenfriendquitCmd = &cobra.Command{
 	Use:   "friend",
 	Short: "quit friend listen service",
-	Long: `quit friend listen service`,
+	Long:  `quit friend listen service`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("listenfriendquit called")
 	},

@@ -29,20 +29,20 @@ var listengroupaddr string
 var listengroupCmd = &cobra.Command{
 	Use:   "group",
 	Short: "listen a group message",
-	Long: `listen a group message`,
+	Long:  `listen a group message`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if _, err := cmdcommon.IsProcessStarted(); err != nil {
 			log.Println(err)
 			return
 		}
 
-		if listengroupaddr == ""{
+		if listengroupaddr == "" {
 			log.Println("please input group id")
 			return
 		}
 
 		var param []string
-		param = append(param,listengroupaddr)
+		param = append(param, listengroupaddr)
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_GROUP, param)
 	},
@@ -60,5 +60,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// listengroupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	listengroupCmd.Flags().StringVarP(&listengroupaddr,"group","g","","group id")
+	listengroupCmd.Flags().StringVarP(&listengroupaddr, "group", "g", "", "group id")
 }

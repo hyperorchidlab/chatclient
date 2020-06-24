@@ -79,7 +79,7 @@ func CreateGroup(groupName string) error {
 
 		mdb := db.GetMetaDb()
 		mdb.AddGroup(resp.GCI.GroupName, resp.GCI.GID, resp.GCI.IsOwner, resp.GCI.CreateTime)
-		mdb.AddGroupMember(resp.GCI.GID,cfg.SP.SignText.AliasName,address.ChatAddress(cfg.SP.SignText.CPubKey),0,resp.GCI.CreateTime)
+		mdb.AddGroupMember(resp.GCI.GID, cfg.SP.SignText.AliasName, address.ChatAddress(cfg.SP.SignText.CPubKey), 0, resp.GCI.CreateTime)
 
 		return nil
 	}

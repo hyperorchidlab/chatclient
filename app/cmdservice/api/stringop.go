@@ -81,9 +81,9 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 			}
 		}
 	case cmdcommon.CMD_LISTEN_FRIEND:
-		if len(so.Param) != 1{
+		if len(so.Param) != 1 {
 			msg = "Param error"
-		}else{
+		} else {
 			//c:=time.Tick(time.Second)
 			//select {
 			//case <-c:

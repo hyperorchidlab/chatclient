@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	sendGroupMsg string
+	sendGroupMsg    string
 	sendGroupMsgGid string
 )
 
@@ -32,26 +32,25 @@ var (
 var sendgroupmessageCmd = &cobra.Command{
 	Use:   "message",
 	Short: "send a message to a group",
-	Long: `send a message to a group`,
+	Long:  `send a message to a group`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if _, err := cmdcommon.IsProcessStarted(); err != nil {
 			log.Println(err)
 			return
 		}
 
-		if sendGroupMsg == ""{
+		if sendGroupMsg == "" {
 			log.Println("please input message")
 			return
 		}
 
-		if sendGroupMsgGid == ""{
+		if sendGroupMsgGid == "" {
 			log.Println("please input group id")
 			return
 		}
 
-
 		var param []string
-		param = append(param,sendGroupMsg,sendGroupMsgGid)
+		param = append(param, sendGroupMsg, sendGroupMsgGid)
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_SEND_GMSG, param)
 	},
@@ -69,6 +68,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// sendgroupmessageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	sendgroupmessageCmd.Flags().StringVarP(&sendGroupMsg,"message","m","","message to send group")
-	sendgroupmessageCmd.Flags().StringVarP(&sendGroupMsgGid,"group","g","","group for receive the message")
+	sendgroupmessageCmd.Flags().StringVarP(&sendGroupMsg, "message", "m", "", "message to send group")
+	sendgroupmessageCmd.Flags().StringVarP(&sendGroupMsgGid, "group", "g", "", "group for receive the message")
 }
