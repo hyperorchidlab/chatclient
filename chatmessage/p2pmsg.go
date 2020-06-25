@@ -117,7 +117,7 @@ func FetchP2pMessage(friend address.ChatAddress, begin, n int) error {
 	if err != nil {
 		return err
 	}
-	if reply.CipherTxt != "" {
+	if reply.CipherTxt == "" {
 		return errors.New("fetch p2p msg failed, cipher text is none")
 	}
 
@@ -125,6 +125,7 @@ func FetchP2pMessage(friend address.ChatAddress, begin, n int) error {
 		cipherBytes := base58.Decode(reply.CipherTxt)
 		var plaintxt []byte
 		plaintxt, err = chatcrypt.Decrypt(aesk, cipherBytes)
+
 		resp := &protocol.P2pMsgFetchResp{}
 		err = json.Unmarshal(plaintxt, &resp.Msg)
 		if err != nil {
@@ -143,7 +144,6 @@ func FetchP2pMessage(friend address.ChatAddress, begin, n int) error {
 			}
 
 			fmdb.Insert(friend.String(), isOwner, lm.Msg, lm.Cnt)
-
 		}
 
 		return nil

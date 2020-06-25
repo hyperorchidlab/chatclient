@@ -18,9 +18,10 @@ package cmd
 import (
 	"github.com/kprc/chatclient/app/cmdclient"
 	"github.com/kprc/chatclient/app/cmdcommon"
-	"log"
-
+	"github.com/kprc/chatclient/app/cmdlistenudp"
 	"github.com/spf13/cobra"
+	"log"
+	"strconv"
 )
 
 var listenfriendaddr string
@@ -41,10 +42,17 @@ var listenfriendCmd = &cobra.Command{
 			return
 		}
 
+
+		port := cmdlistenudp.RandPort()
+
 		var param []string
-		param = append(param, listenfriendaddr)
+		param = append(param, listenfriendaddr,strconv.Itoa(port))
+
+		server:=cmdlistenudp.NewUdpServer(port)
+		go server.Serve()
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_FRIEND, param)
+
 	},
 }
 
@@ -62,3 +70,6 @@ func init() {
 	// listenfriendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	listenfriendCmd.Flags().StringVarP(&listenfriendaddr, "friend", "f", "", "friend address")
 }
+
+
+

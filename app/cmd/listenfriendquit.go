@@ -16,18 +16,34 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"github.com/kprc/chatclient/app/cmdclient"
+	"github.com/kprc/chatclient/app/cmdcommon"
+	"log"
 
 	"github.com/spf13/cobra"
 )
 
+var listenquitfriendaddr string
 // listenfriendquitCmd represents the listenfriendquit command
 var listenfriendquitCmd = &cobra.Command{
 	Use:   "friend",
 	Short: "quit friend listen service",
 	Long:  `quit friend listen service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("listenfriendquit called")
+		if _, err := cmdcommon.IsProcessStarted(); err != nil {
+			log.Println(err)
+			return
+		}
+
+		if listenquitfriendaddr == "" {
+			log.Println("please input friend address")
+			return
+		}
+
+		var param []string
+		param = append(param, listenquitfriendaddr)
+
+		cmdclient.StringOpCmdSend("", cmdcommon.CMD_QUIT_LISTEN_FRIEND, param)
 	},
 }
 
@@ -43,4 +59,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// listenfriendquitCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listenfriendquitCmd.Flags().StringVarP(&listenquitfriendaddr,"friend","f","","quit listen friend address")
 }

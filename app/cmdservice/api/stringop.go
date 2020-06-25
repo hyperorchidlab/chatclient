@@ -2,13 +2,13 @@ package api
 
 import (
 	"context"
-	"github.com/kprc/chatclient/app/cmdcommon"
-	"github.com/kprc/chatclient/app/cmdpb"
-
 	"fmt"
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chat-protocol/groupid"
+	"github.com/kprc/chatclient/app/cmdcommon"
+	"github.com/kprc/chatclient/app/cmdpb"
 	"github.com/kprc/chatclient/chatcrypt"
+	"github.com/kprc/chatclient/chatmessage"
 	"github.com/kprc/chatclient/chatmeta"
 	"github.com/kprc/chatclient/config"
 	"strconv"
@@ -81,14 +81,39 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 			}
 		}
 	case cmdcommon.CMD_LISTEN_FRIEND:
+		if len(so.Param) != 2 {
+			msg = "Param error"
+		} else {
+			if !address.ChatAddress(so.Param[0]).IsValid(){
+				msg = "not a friend address"
+			}else{
+				msg = chatmessage.Listen(address.ChatAddress(so.Param[0]),so.Param[1])
+			}
+		}
+	case cmdcommon.CMD_QUIT_LISTEN_FRIEND:
 		if len(so.Param) != 1 {
 			msg = "Param error"
 		} else {
-			//c:=time.Tick(time.Second)
-			//select {
-			//case <-c:
-			//
-			//}
+			if !address.ChatAddress(so.Param[0]).IsValid(){
+				msg = "not a friend address"
+			}else{
+				msg = chatmessage.StopListen(address.ChatAddress(so.Param[0]))
+			}
+		}
+	case cmdcommon.CMD_SEND_P2PMSG:
+		if len(so.Param)!=2{
+			msg = "param error"
+		}else{
+			if !address.ChatAddress(so.Param[1]).IsValid(){
+				msg = "not a friend address"
+			}else{
+				err := chatmessage.SendP2pMsg(address.ChatAddress(so.Param[1]),so.Param[0])
+				if err!=nil{
+					msg = err.Error()
+				}else{
+					msg = "Send Message successful"
+				}
+			}
 		}
 
 	default:

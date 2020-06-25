@@ -1,10 +1,16 @@
 package chatmessage
 
 import (
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/kprc/chat-protocol/address"
+	"github.com/kprc/chatclient/app/cmdlistenudp"
+	"github.com/kprc/chatclient/chatcrypt"
+	"github.com/kprc/chatclient/config"
 	"github.com/kprc/chatclient/db"
 	"github.com/pkg/errors"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
+	"fmt"
+	"log"
+	"time"
 
 	"sync"
 )
@@ -15,12 +21,17 @@ type MsgChannel struct {
 	Msg     chan []*db.FriendMsg
 	refresh chan struct{}
 	quit    chan struct{}
+	showCnt int
 }
 
 var (
 	p2pListenLock sync.Mutex
 	p2pListenMem  map[string]*MsgChannel
 )
+
+func init()  {
+	p2pListenMem = make(map[string]*MsgChannel)
+}
 
 func getChannel(key string) *MsgChannel {
 	p2pListenLock.Lock()
@@ -50,7 +61,32 @@ func checkRunning(mc *MsgChannel) error {
 	return nil
 }
 
-func Listen(friend address.ChatAddress) string {
+func isRunning(mc *MsgChannel) bool  {
+	mc.Lock.Lock()
+	defer mc.Lock.Unlock()
+
+	return mc.Running
+
+}
+
+func StopListen(friend address.ChatAddress) string {
+	p2pListenLock.Lock()
+	defer p2pListenLock.Unlock()
+
+	if v,ok:=p2pListenMem[friend.String()];!ok{
+		return "not found listen thread"
+	}else{
+		if !isRunning(v){
+			return "listen is not running"
+		}else{
+			v.quit <- struct{}{}
+			return "stopping listen friend: "+friend.String()
+		}
+
+	}
+}
+
+func Listen(friend address.ChatAddress, port string) string {
 	mc := getChannel(friend.String())
 
 	if mc.Running {
@@ -68,25 +104,96 @@ func Listen(friend address.ChatAddress) string {
 		return "friend not found"
 	}
 
+	c:=cmdlistenudp.NewCmdUdpClient(port)
+	if err = c.Start();err!=nil{
+		return "Can't start tunnel"
+	}
+
+	tc := time.NewTicker(time.Second)
+
 	for {
 		select {
 		case m := <-mc.Msg:
 			for i := 0; i < len(m); i++ {
 				msg := m[i]
 				s := ""
+
 				if msg.IsOwner {
-					s = fmt.Sprintf("%-20s%s", "Mine:", msg.Msg)
+					s = fmt.Sprintf("%-20s%s", "Mine:", DecryptMsg(friend,msg.Msg))
 				} else {
-					s = fmt.Sprintf("%-20s%s", f.AliasName+":", msg.Msg)
+					s = fmt.Sprintf("%-20s%s", f.AliasName+":", DecryptMsg(friend,msg.Msg))
 				}
-				fmt.Println(s)
+				c.Write([]byte(s))
 			}
+		case <-tc.C:
+			mc.refreshFriend(friend)
 		case <-mc.refresh:
-			//do refresh
+			mc.refreshFriend(friend)
 		case <-mc.quit:
+			c.Write([]byte("====quit===="))
+			time.Sleep(time.Second)
+			tc.Stop()
 			mc.Running = false
+			c.Close()
 			return "normal quit"
 		}
 	}
 
 }
+
+func DecryptMsg(friend address.ChatAddress,cipherMsg string) (plainMsg string)  {
+	cfg:=config.GetCCC()
+
+	ciphertxt:=base58.Decode(cipherMsg)
+
+	aesk,err:=chatcrypt.GenerateAesKey(friend.ToPubKey(),cfg.PrivKey)
+	if err!=nil{
+		return ""
+	}
+	var plaintxt []byte
+	plaintxt,err=chatcrypt.Decrypt(aesk,[]byte(ciphertxt))
+
+	return string(plaintxt)
+}
+
+func (mc *MsgChannel)refreshFriend(friend address.ChatAddress)  {
+
+	var (
+		begin int
+	)
+
+	fmdb:=db.GetFriendMsgDb()
+	v,err:=fmdb.FindLatest(friend.String())
+	if err!=nil{
+		begin = 0
+	}else{
+		begin = v.Counter + 1
+	}
+
+	err = FetchP2pMessage(friend,begin,20)
+	if err!=nil{
+		fmt.Println(err)
+		return
+	}
+
+	fms,err:=fmdb.FindMsg(friend.String(),mc.showCnt,20)
+	if err!=nil{
+		fmt.Println(err)
+		return
+	}
+
+	for i:=0;i<len(fms);i++{
+		log.Println(fms[i].String())
+	}
+
+
+	if len(fms)<=0{
+		return
+	}
+
+	mc.Msg<-fms
+
+	mc.showCnt = fms[len(fms)-1].LCnt
+
+}
+

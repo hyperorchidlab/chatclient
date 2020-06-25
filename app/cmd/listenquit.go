@@ -27,7 +27,7 @@ var listenQuitCmd = &cobra.Command{
 	Short: "quit from listen service",
 	Long:  `quit from listen service`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("quit called")
+		fmt.Println("command is not complete")
 	},
 }
 

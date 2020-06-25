@@ -220,7 +220,7 @@ func (md *MetaDb) FindFriend(addr address.ChatAddress) (*Friend, error) {
 	md.Lock.Lock()
 	defer md.Lock.Unlock()
 
-	farg := Friend{Addr: addr}
+	farg := &Friend{Addr: addr}
 
 	if f := md.LFriend.Find(farg); f == nil {
 		return nil, errors.New("not found")
