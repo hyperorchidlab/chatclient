@@ -193,7 +193,7 @@ func (mc *MsgChannel)refreshFriend(friend address.ChatAddress)  {
 
 	mc.Msg<-fms
 
-	mc.showCnt = fms[len(fms)-1].LCnt
+	mc.showCnt = fms[len(fms)-1].LCnt + 1
 
 }
 
