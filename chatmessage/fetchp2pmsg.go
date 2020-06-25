@@ -9,7 +9,6 @@ import (
 	"github.com/kprc/chatclient/config"
 	"github.com/kprc/chatclient/db"
 	"github.com/pkg/errors"
-	"log"
 	"time"
 
 	"sync"
@@ -173,7 +172,7 @@ func (mc *MsgChannel) refreshFriend(friend address.ChatAddress) {
 	err = FetchP2pMessage(friend, begin, 20)
 	if err != nil {
 		fmt.Println(err)
-		return
+		//return
 	}
 
 	fms, err := fmdb.FindMsg(friend.String(), mc.showCnt, 20)
@@ -182,9 +181,9 @@ func (mc *MsgChannel) refreshFriend(friend address.ChatAddress) {
 		return
 	}
 
-	for i := 0; i < len(fms); i++ {
-		log.Println(fms[i].String())
-	}
+	//for i := 0; i < len(fms); i++ {
+	//	log.Println(fms[i].String())
+	//}
 
 	if len(fms) <= 0 {
 		return
