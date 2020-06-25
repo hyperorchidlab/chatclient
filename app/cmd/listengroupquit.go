@@ -24,6 +24,7 @@ import (
 )
 
 var listenquitgroupaddr string
+
 // listengroupquitCmd represents the listengroupquit command
 var listengroupquitCmd = &cobra.Command{
 	Use:   "group",
@@ -59,5 +60,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// listengroupquitCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	listengroupquitCmd.Flags().StringVarP(&listenquitgroupaddr,"group","g","","listen group id")
+	listengroupquitCmd.Flags().StringVarP(&listenquitgroupaddr, "group", "g", "", "listen group id")
 }

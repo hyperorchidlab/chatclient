@@ -22,12 +22,12 @@ type FriendMsg struct {
 	LCnt    int    `json:"-"`
 }
 
-func (fm *FriendMsg)String()  string{
-	s:=""
-	s+=fmt.Sprintf("IsOwner:%-8v",fm.IsOwner)
-	s+=fmt.Sprintf("Msg: %s-32",fm.Msg)
-	s+=fmt.Sprintf("Cnt: %-8d",fm.Counter)
-	s+=fmt.Sprintf("LC: %-8d",fm.LCnt)
+func (fm *FriendMsg) String() string {
+	s := ""
+	s += fmt.Sprintf("IsOwner:%-8v", fm.IsOwner)
+	s += fmt.Sprintf("Msg: %s-32", fm.Msg)
+	s += fmt.Sprintf("Cnt: %-8d", fm.Counter)
+	s += fmt.Sprintf("LC: %-8d", fm.LCnt)
 	return s
 }
 
@@ -96,18 +96,18 @@ func (fhdb *FriendHistoryDB) FindMsg(peerPk string, begin, n int) ([]*FriendMsg,
 
 }
 
-func (fhdb *FriendHistoryDB)FindLatest(key string) (*FriendMsg, error){
+func (fhdb *FriendHistoryDB) FindLatest(key string) (*FriendMsg, error) {
 	fhdb.lock.Lock()
 	defer fhdb.lock.Unlock()
 
-	if v,err:=fhdb.HistoryDBIntf.FindLatest(key);err!=nil{
+	if v, err := fhdb.HistoryDBIntf.FindLatest(key); err != nil {
 		return nil, err
-	}else{
-		fm:=&FriendMsg{}
-		json.Unmarshal([]byte(v.V),fm)
+	} else {
+		fm := &FriendMsg{}
+		json.Unmarshal([]byte(v.V), fm)
 		fm.LCnt = v.Cnt
 
-		return fm,nil
+		return fm, nil
 	}
 
 }

@@ -84,33 +84,33 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 		if len(so.Param) != 2 {
 			msg = "Param error"
 		} else {
-			if !address.ChatAddress(so.Param[0]).IsValid(){
+			if !address.ChatAddress(so.Param[0]).IsValid() {
 				msg = "not a friend address"
-			}else{
-				msg = chatmessage.Listen(address.ChatAddress(so.Param[0]),so.Param[1])
+			} else {
+				msg = chatmessage.Listen(address.ChatAddress(so.Param[0]), so.Param[1])
 			}
 		}
 	case cmdcommon.CMD_QUIT_LISTEN_FRIEND:
 		if len(so.Param) != 1 {
 			msg = "Param error"
 		} else {
-			if !address.ChatAddress(so.Param[0]).IsValid(){
+			if !address.ChatAddress(so.Param[0]).IsValid() {
 				msg = "not a friend address"
-			}else{
+			} else {
 				msg = chatmessage.StopListen(address.ChatAddress(so.Param[0]))
 			}
 		}
 	case cmdcommon.CMD_SEND_P2PMSG:
-		if len(so.Param)!=2{
+		if len(so.Param) != 2 {
 			msg = "param error"
-		}else{
-			if !address.ChatAddress(so.Param[1]).IsValid(){
+		} else {
+			if !address.ChatAddress(so.Param[1]).IsValid() {
 				msg = "not a friend address"
-			}else{
-				err := chatmessage.SendP2pMsg(address.ChatAddress(so.Param[1]),so.Param[0])
-				if err!=nil{
+			} else {
+				err := chatmessage.SendP2pMsg(address.ChatAddress(so.Param[1]), so.Param[0])
+				if err != nil {
 					msg = err.Error()
-				}else{
+				} else {
 					msg = "Send Message successful"
 				}
 			}

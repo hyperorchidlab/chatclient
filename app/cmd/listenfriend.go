@@ -42,13 +42,12 @@ var listenfriendCmd = &cobra.Command{
 			return
 		}
 
-
 		port := cmdlistenudp.RandPort()
 
 		var param []string
-		param = append(param, listenfriendaddr,strconv.Itoa(port))
+		param = append(param, listenfriendaddr, strconv.Itoa(port))
 
-		server:=cmdlistenudp.NewUdpServer(port)
+		server := cmdlistenudp.NewUdpServer(port)
 		go server.Serve()
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_FRIEND, param)
@@ -70,6 +69,3 @@ func init() {
 	// listenfriendCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	listenfriendCmd.Flags().StringVarP(&listenfriendaddr, "friend", "f", "", "friend address")
 }
-
-
-

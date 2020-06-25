@@ -24,6 +24,7 @@ import (
 )
 
 var listenquitfriendaddr string
+
 // listenfriendquitCmd represents the listenfriendquit command
 var listenfriendquitCmd = &cobra.Command{
 	Use:   "friend",
@@ -59,5 +60,5 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// listenfriendquitCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	listenfriendquitCmd.Flags().StringVarP(&listenquitfriendaddr,"friend","f","","quit listen friend address")
+	listenfriendquitCmd.Flags().StringVarP(&listenquitfriendaddr, "friend", "f", "", "quit listen friend address")
 }
