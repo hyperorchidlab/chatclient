@@ -8,6 +8,23 @@ import (
 	"errors"
 )
 
+func GenGroupAesKey2(mainPriv ed25519.PrivateKey, pubkeys []string) (aes []byte, groupKeys []string, err error) {
+	var pksBytes [][]byte
+	for i := 0; i < len(pubkeys); i++ {
+		pksBytes = append(pksBytes, base58.Decode(pubkeys[i]))
+	}
+
+	aesk, gks, err := GenGroupAesKey(mainPriv, pksBytes)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for i := 0; i < len(gks); i++ {
+		groupKeys = append(groupKeys, base58.Encode(gks[i]))
+	}
+	return aesk, groupKeys, nil
+}
+
 func GenGroupAesKey(mainPriv ed25519.PrivateKey, pubkeys [][]byte) (aes []byte, groupKeys [][]byte, err error) {
 	if len(pubkeys) <= 0 {
 		return

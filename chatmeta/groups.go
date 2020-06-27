@@ -236,12 +236,19 @@ func genGroupKeys(gid groupid.GrpID, friendPK string, drop bool) (pkeys []string
 
 	cfg := config.GetCCC()
 
-	var gkBytes [][]byte
+	var (
+		gkBytes [][]byte
+		aesk    []byte
+	)
 
-	_, gkBytes, err = chatcrypt.GenGroupAesKey(cfg.PrivKey, pkBytes)
+	aesk, gkBytes, err = chatcrypt.GenGroupAesKey(cfg.PrivKey, pkBytes)
 	if err != nil {
 		return
 	}
+
+	gkdb := db.GetChatGrpKeysDb()
+	memkey := gkdb.Insert(gkBytes, pkBytes)
+	db.UpdateGroupKeyMem(gid, memkey, aesk)
 
 	pkeys = bytesArrays2StringArrays(pkBytes)
 	gkeys = bytesArrays2StringArrays(gkBytes)

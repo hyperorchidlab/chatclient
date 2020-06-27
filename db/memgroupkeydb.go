@@ -20,11 +20,11 @@ var (
 	groupKeyMemDb   map[groupid.GrpID]*GroupKeyMemInfo
 )
 
-func UpdateGroupKeyMem(gid groupid.GrpID, hashKey string) {
+func UpdateGroupKeyMem(gid groupid.GrpID, hashKey string, aesk []byte) {
 	groupKeyMemLock.Lock()
 	defer groupKeyMemLock.Unlock()
 
-	m := &GroupKeyMemInfo{HashKey: hashKey}
+	m := &GroupKeyMemInfo{HashKey: hashKey, AesKey: aesk}
 
 	groupKeyMemDb[gid] = m
 }
@@ -56,19 +56,37 @@ func GetMemGroupAesKey(gid groupid.GrpID) (aesk []byte, err error) {
 	groupKeyMemLock.Lock()
 	defer groupKeyMemLock.Unlock()
 
-	if v, ok := groupKeyMemDb[gid]; !ok {
-		return nil, errors.New("Not found")
-	} else {
-		gkdb := GetChatGrpKeysDb()
-		gks := gkdb.Find(v.HashKey)
+	var (
+		v  *GroupKeyMemInfo
+		ok bool
+	)
 
-		aesk, err = chatcrypt.DeriveGroupKey2(config.GetCCC().PrivKey, gks.GroupKeys, gks.PubKeys)
+	v, ok = groupKeyMemDb[gid]
+	if !ok {
+		return nil, errors.New("Not found")
+	}
+
+	cfg := config.GetCCC()
+
+	gkdb := GetChatGrpKeysDb()
+	gks := gkdb.Find(v.HashKey)
+
+	mdb := GetMetaDb()
+	if mdb.IsOwnerGroup(gid) {
+		aesk, _, err = chatcrypt.GenGroupAesKey2(cfg.PrivKey, gks.PubKeys)
 		if err != nil {
 			return nil, err
 		}
-		v.AesKey = aesk
-		return aesk, nil
+	} else {
+
+		aesk, err = chatcrypt.DeriveGroupKey2(cfg.PrivKey, gks.GroupKeys, gks.PubKeys)
+		if err != nil {
+			return nil, err
+		}
+
 	}
+	v.AesKey = aesk
+	return aesk, nil
 }
 
 func EncryptGroupMsg(message string, gid groupid.GrpID) (string, error) {

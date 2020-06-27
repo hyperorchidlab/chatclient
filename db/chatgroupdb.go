@@ -89,3 +89,18 @@ func (ghdb *GroupHistoryDB) FindMsg(gid groupid.GrpID, begin, n int) ([]*GroupMs
 	return r, nil
 
 }
+
+func (ghdb *GroupHistoryDB) FindLatest(gid groupid.GrpID) (*GroupMsg, error) {
+	ghdb.lock.Lock()
+	defer ghdb.lock.Unlock()
+
+	if v, err := ghdb.HistoryDBIntf.FindLatest(gid.String()); err != nil {
+		return nil, err
+	} else {
+		gm := &GroupMsg{}
+		json.Unmarshal([]byte(v.V), gm)
+		gm.LCnt = v.Cnt
+
+		return gm, nil
+	}
+}
