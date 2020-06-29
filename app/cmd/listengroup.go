@@ -18,7 +18,9 @@ package cmd
 import (
 	"github.com/kprc/chatclient/app/cmdclient"
 	"github.com/kprc/chatclient/app/cmdcommon"
+	"github.com/kprc/chatclient/app/cmdlistenudp"
 	"log"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -41,8 +43,13 @@ var listengroupCmd = &cobra.Command{
 			return
 		}
 
+		port := cmdlistenudp.RandPort()
+
 		var param []string
-		param = append(param, listengroupaddr)
+		param = append(param, listengroupaddr, strconv.Itoa(port))
+
+		server := cmdlistenudp.NewUdpServer(port)
+		go server.Serve()
 
 		cmdclient.StringOpCmdSend("", cmdcommon.CMD_LISTEN_GROUP, param)
 	},

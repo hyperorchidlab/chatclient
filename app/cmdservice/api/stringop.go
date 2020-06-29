@@ -137,7 +137,7 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 			if !groupid.GrpID(so.Param[0]).IsValid() {
 				msg = "not a valid group id"
 			} else {
-				msg = chatmessage.GCListen(groupid.GrpID(so.Param[1]), so.Param[1])
+				msg = chatmessage.GCListen(groupid.GrpID(so.Param[0]), so.Param[1])
 			}
 		}
 	case cmdcommon.CMD_QUIT_LISTEN_GROUP:
