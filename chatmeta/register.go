@@ -34,8 +34,12 @@ func RegChat(alias string, months int) error {
 	log.Println(string(regs))
 
 	resp, stat, err = common.Post1(config.GetCCC().GetRegUrl(), string(regs), false)
-	if err != nil || stat != 200 {
+	if err != nil {
 		return err
+	}
+
+	if stat != 200 {
+		return errors.New("code is not 200")
 	}
 
 	log.Println(resp)
