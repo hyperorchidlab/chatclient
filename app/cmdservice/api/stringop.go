@@ -115,7 +115,41 @@ func (cso *CmdStringOPSrv) StringOpDo(cxt context.Context, so *cmdpb.StringOP) (
 				}
 			}
 		}
-
+	case cmdcommon.CMD_SEND_GMSG:
+		if len(so.Param) != 2 {
+			msg = "Param error"
+		} else {
+			if !groupid.GrpID(so.Param[1]).IsValid() {
+				msg = "not a valid group id"
+			} else {
+				err := chatmessage.SendGroupMsg(groupid.GrpID(so.Param[1]), so.Param[0])
+				if err != nil {
+					msg = err.Error()
+				} else {
+					msg = "Send Message Successful"
+				}
+			}
+		}
+	case cmdcommon.CMD_LISTEN_GROUP:
+		if len(so.Param) != 2 {
+			msg = "Param error"
+		} else {
+			if !groupid.GrpID(so.Param[0]).IsValid() {
+				msg = "not a valid group id"
+			} else {
+				msg = chatmessage.GCListen(groupid.GrpID(so.Param[1]), so.Param[1])
+			}
+		}
+	case cmdcommon.CMD_QUIT_LISTEN_GROUP:
+		if len(so.Param) != 1 {
+			msg = "Param error"
+		} else {
+			if !groupid.GrpID(so.Param[0]).IsValid() {
+				msg = "not a valid group id"
+			} else {
+				msg = chatmessage.StopGCListen(groupid.GrpID(so.Param[0]))
+			}
+		}
 	default:
 		return encapResp("Command Not Found"), nil
 	}

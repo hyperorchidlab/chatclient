@@ -5,71 +5,142 @@ import (
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chat-protocol/groupid"
+	"github.com/kprc/chat-protocol/protocol"
 	"github.com/kprc/chatclient/chatcrypt"
 	"github.com/kprc/chatclient/config"
+	"github.com/kprc/chatclient/msgdrive"
 	"sync"
 )
 
-type GroupKeyMemInfo struct {
-	HashKey string
-	AesKey  []byte
+//type GroupKeyMemInfo struct {
+//	HashKey string
+//	AesKey  []byte
+//}
+
+type GroupKeyPair struct {
+	HK     string
+	AesKey []byte
+}
+
+type GroupKeyMap struct {
+	KeyMap map[string][]byte
+	CurKP  *GroupKeyPair
+}
+
+type GroupAesKeyMem struct {
+	KM map[groupid.GrpID]*GroupKeyMap
 }
 
 var (
 	groupKeyMemLock sync.Mutex
-	groupKeyMemDb   map[groupid.GrpID]*GroupKeyMemInfo
+	groupKeyMemDb   *GroupAesKeyMem
 )
 
-func UpdateGroupKeyMem(gid groupid.GrpID, hashKey string, aesk []byte) {
-	groupKeyMemLock.Lock()
-	defer groupKeyMemLock.Unlock()
+func GetGrouKeyMemDb() *GroupAesKeyMem {
 
-	m := &GroupKeyMemInfo{HashKey: hashKey, AesKey: aesk}
-
-	groupKeyMemDb[gid] = m
-}
-
-func GetMemGroupKey(gid groupid.GrpID) *GroupKeyMemInfo {
-	groupKeyMemLock.Lock()
-	defer groupKeyMemLock.Unlock()
-
-	if v, ok := groupKeyMemDb[gid]; !ok {
-		return nil
-	} else {
-		return v
+	if groupKeyMemDb != nil {
+		return groupKeyMemDb
 	}
+
+	groupKeyMemLock.Lock()
+	defer groupKeyMemLock.Unlock()
+	if groupKeyMemDb != nil {
+		return groupKeyMemDb
+	}
+
+	groupKeyMemDb = &GroupAesKeyMem{KM: make(map[groupid.GrpID]*GroupKeyMap)}
+
+	return groupKeyMemDb
 }
 
-func GetMemGroupHashKey(gid groupid.GrpID) (string, error) {
+func (gakm *GroupAesKeyMem) UpdateGroupKeyMem(gid groupid.GrpID, hashKey string, aesk []byte) {
 	groupKeyMemLock.Lock()
 	defer groupKeyMemLock.Unlock()
 
-	if v, ok := groupKeyMemDb[gid]; !ok {
+	gi, ok := groupKeyMemDb.KM[gid]
+	if !ok {
+		gi = &GroupKeyMap{}
+		gi.KeyMap = make(map[string][]byte)
+		groupKeyMemDb.KM[gid] = gi
+	}
+
+	gi.KeyMap[hashKey] = aesk
+
+	if gi.CurKP == nil {
+		gi.CurKP = &GroupKeyPair{}
+	}
+	gi.CurKP.AesKey = aesk
+	gi.CurKP.HK = hashKey
+
+}
+
+func (gakm *GroupAesKeyMem) GetMemGroupHashKey(gid groupid.GrpID) (string, error) {
+	groupKeyMemLock.Lock()
+	defer groupKeyMemLock.Unlock()
+
+	if v, ok := groupKeyMemDb.KM[gid]; !ok {
 		return "", errors.New("no groupkey")
 	} else {
-		return v.HashKey, nil
+		if v.CurKP == nil {
+			return "", errors.New("no groupkey")
+		}
+		return v.CurKP.HK, nil
 	}
 
 }
 
-func GetMemGroupAesKey(gid groupid.GrpID) (aesk []byte, err error) {
+func (gakm *GroupAesKeyMem) GetMemGroupAesKey(gid groupid.GrpID) (aesk []byte, err error) {
 	groupKeyMemLock.Lock()
 	defer groupKeyMemLock.Unlock()
 
 	var (
-		v  *GroupKeyMemInfo
+		v  *GroupKeyMap
 		ok bool
 	)
 
-	v, ok = groupKeyMemDb[gid]
+	v, ok = groupKeyMemDb.KM[gid]
 	if !ok {
 		return nil, errors.New("Not found")
 	}
+	if v.CurKP == nil || v.CurKP.HK == "" {
+		return nil, errors.New("No hot hash key")
+	}
 
-	cfg := config.GetCCC()
+	if v.CurKP.AesKey != nil {
+		return v.CurKP.AesKey, nil
+	}
 
 	gkdb := GetChatGrpKeysDb()
-	gks := gkdb.Find(v.HashKey)
+	gks := gkdb.Find(v.CurKP.HK)
+
+	if gks == nil {
+		var protcolgks *protocol.GroupKeys
+		protcolgks, err = msgdrive.DriveGroupKey(v.CurKP.HK)
+		if err != nil {
+			return nil, err
+		}
+
+		gks.GroupKeys = protcolgks.GroupKeys
+		gks.PubKeys = protcolgks.PubKeys
+
+	}
+
+	aesk, err = getAesKey(gid, gks)
+
+	v.KeyMap[v.CurKP.HK] = aesk
+	v.CurKP.AesKey = aesk
+
+	return aesk, nil
+}
+
+func getAesKey(gid groupid.GrpID, gks *GroupKeys) ([]byte, error) {
+
+	var (
+		aesk []byte
+		err  error
+	)
+
+	cfg := config.GetCCC()
 
 	mdb := GetMetaDb()
 	if mdb.IsOwnerGroup(gid) {
@@ -85,12 +156,13 @@ func GetMemGroupAesKey(gid groupid.GrpID) (aesk []byte, err error) {
 		}
 
 	}
-	v.AesKey = aesk
-	return aesk, nil
+
+	return aesk, err
 }
 
 func EncryptGroupMsg(message string, gid groupid.GrpID) (string, error) {
-	aesk, err := GetMemGroupAesKey(gid)
+	gkdb := GetGrouKeyMemDb()
+	aesk, err := gkdb.GetMemGroupAesKey(gid)
 	if err != nil {
 		return "", err
 	}
@@ -103,6 +175,64 @@ func EncryptGroupMsg(message string, gid groupid.GrpID) (string, error) {
 
 	return base58.Encode(cipherTxt), nil
 
+}
+
+func DecryptGroupMsg(cipherTxt string, hashk string, gid groupid.GrpID) (string, error) {
+
+	var aesk []byte
+
+	v, ok := groupKeyMemDb.KM[gid]
+	if !ok {
+		v = &GroupKeyMap{KeyMap: make(map[string][]byte)}
+		groupKeyMemDb.KM[gid] = v
+	}
+
+	if v.CurKP != nil {
+		if v.CurKP.HK == hashk {
+			aesk = v.CurKP.AesKey
+		}
+	} else {
+		if v.KeyMap != nil {
+			aesk = v.KeyMap[hashk]
+		}
+	}
+	var err error
+	if aesk == nil || len(aesk) == 0 {
+
+		grpkdb := GetChatGrpKeysDb()
+		gks := grpkdb.Find(hashk)
+		if gks == nil {
+			var ks *protocol.GroupKeys
+			ks, err = msgdrive.DriveGroupKey(hashk)
+			if err != nil {
+				return "", err
+			}
+			gks = &GroupKeys{PubKeys: ks.PubKeys, GroupKeys: ks.GroupKeys}
+		}
+
+		aesk, err = getAesKey(gid, gks)
+		if err != nil {
+			return "", err
+		}
+		if v.KeyMap == nil {
+			v.KeyMap = make(map[string][]byte)
+		}
+		v.KeyMap[hashk] = aesk
+		if v.CurKP == nil {
+			v.CurKP = &GroupKeyPair{}
+		}
+		v.CurKP.HK = hashk
+		v.CurKP.AesKey = aesk
+	}
+
+	cipherBytes := base58.Decode(cipherTxt)
+
+	var plainTxt []byte
+	plainTxt, err = chatcrypt.Decrypt(aesk, cipherBytes)
+	if err != nil {
+		return "", err
+	}
+	return string(plainTxt), nil
 }
 
 type FriendKeyMemInfo struct {
@@ -150,10 +280,24 @@ func EncryptP2pMsg(message string, friend address.ChatAddress) (string, error) {
 	return base58.Encode(cipherTxt), nil
 }
 
-func init() {
-	if groupKeyMemDb == nil {
-		groupKeyMemDb = make(map[groupid.GrpID]*GroupKeyMemInfo)
+func DecryptP2pMsg(friend address.ChatAddress, cipherTxt string) (string, error) {
+	aesk, err := GetMemFriendAesKey(friend)
+	if err != nil {
+		return "", err
 	}
+
+	cipherBytes := base58.Decode(cipherTxt)
+	var plainTxt []byte
+
+	plainTxt, err = chatcrypt.Decrypt(aesk, cipherBytes)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plainTxt), nil
+}
+
+func init() {
 
 	if friendKeyMemDb == nil {
 		friendKeyMemDb = make(map[address.ChatAddress][]byte)

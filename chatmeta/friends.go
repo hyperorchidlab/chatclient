@@ -229,7 +229,8 @@ func RefreshGroupMembers(gid groupid.GrpID) error {
 	}
 
 	if gml.Hashk != "" {
-		db.UpdateGroupKeyMem(gid, gml.Hashk, nil)
+		gmdb := db.GetGrouKeyMemDb()
+		gmdb.UpdateGroupKeyMem(gid, gml.Hashk, nil)
 		gkdb := db.GetChatGrpKeysDb()
 		gkdb.Insert2(gml.Gkeys, gml.PKeys)
 	}

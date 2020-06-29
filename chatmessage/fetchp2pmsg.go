@@ -2,11 +2,8 @@ package chatmessage
 
 import (
 	"fmt"
-	"github.com/btcsuite/btcutil/base58"
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chatclient/app/cmdlistenudp"
-	"github.com/kprc/chatclient/chatcrypt"
-	"github.com/kprc/chatclient/config"
 	"github.com/kprc/chatclient/db"
 	"github.com/pkg/errors"
 	"time"
@@ -88,10 +85,6 @@ func StopListen(friend address.ChatAddress) string {
 func Listen(friend address.ChatAddress, port string) string {
 	mc := getChannel(friend.String())
 
-	if mc.Running {
-		return "mc is running"
-	}
-
 	err := checkRunning(mc)
 	if err != nil {
 		return err.Error()
@@ -117,10 +110,16 @@ func Listen(friend address.ChatAddress, port string) string {
 				msg := m[i]
 				s := ""
 
+				var plainTxt string
+				plainTxt, err = db.DecryptP2pMsg(friend, msg.Msg)
+				if err != nil {
+					continue
+				}
+
 				if msg.IsOwner {
-					s = fmt.Sprintf("%-20s%s", "Mine:", DecryptMsg(friend, msg.Msg))
+					s = fmt.Sprintf("%-20s%s", "Mine:", plainTxt)
 				} else {
-					s = fmt.Sprintf("%-20s%s", f.AliasName+":", DecryptMsg(friend, msg.Msg))
+					s = fmt.Sprintf("%-20s%s", f.AliasName+":", plainTxt)
 				}
 				c.Write([]byte(s))
 			}
@@ -140,20 +139,20 @@ func Listen(friend address.ChatAddress, port string) string {
 
 }
 
-func DecryptMsg(friend address.ChatAddress, cipherMsg string) (plainMsg string) {
-	cfg := config.GetCCC()
-
-	ciphertxt := base58.Decode(cipherMsg)
-
-	aesk, err := chatcrypt.GenerateAesKey(friend.ToPubKey(), cfg.PrivKey)
-	if err != nil {
-		return ""
-	}
-	var plaintxt []byte
-	plaintxt, err = chatcrypt.Decrypt(aesk, []byte(ciphertxt))
-
-	return string(plaintxt)
-}
+//func DecryptMsg(friend address.ChatAddress, cipherMsg string) (plainMsg string) {
+//	cfg := config.GetCCC()
+//
+//	ciphertxt := base58.Decode(cipherMsg)
+//
+//	aesk, err := chatcrypt.GenerateAesKey(friend.ToPubKey(), cfg.PrivKey)
+//	if err != nil {
+//		return ""
+//	}
+//	var plaintxt []byte
+//	plaintxt, err = chatcrypt.Decrypt(aesk, []byte(ciphertxt))
+//
+//	return string(plaintxt)
+//}
 
 func (mc *MsgChannel) refreshFriend(friend address.ChatAddress) {
 

@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"github.com/kprc/chatclient/chatmeta"
+	"github.com/kprc/chatclient/msgdrive"
 	//"github.com/BASChain/go-bas-discover-wanip/dns/server"
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
@@ -69,7 +71,7 @@ var daemonCmd = &cobra.Command{
 		if config.IsUserIdentifyReceived() {
 			config.LoadUserIdentify()
 		}
-
+		msgdrive.RegMsgDriveFunc(chatmeta.FetchGroupKey2)
 		cmdservice.GetCmdServerInst().StartCmdService()
 	},
 }

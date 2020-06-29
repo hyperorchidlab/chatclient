@@ -84,19 +84,20 @@ func StopGCListen(gid groupid.GrpID) string {
 func GCListen(gid groupid.GrpID, port string) string {
 	mc := getgChannel(gid.String())
 
-	if mc.Running {
-		return "mc is running"
-	}
-
 	err := checkGCRunning(mc)
 	if err != nil {
 		return err.Error()
 	}
 
 	fdb := db.GetMetaDb()
-	_, err = fdb.FindGroup(gid)
+	var g *db.Group
+	g, err = fdb.FindGroup(gid)
 	if err != nil {
 		return "group not found"
+	}
+
+	if g.LMember.Count() < 2 {
+		return "you must add new group memeber"
 	}
 
 	c := cmdlistenudp.NewCmdUdpClient(port)
@@ -112,14 +113,18 @@ func GCListen(gid groupid.GrpID, port string) string {
 			for i := 0; i < len(m); i++ {
 				msg := m[i]
 
-				s := fmt.Sprintf("%-20s%s", msg.Speak+":", DecryptGMsg(gid, msg.AesKey, msg.Msg))
+				var plainTxt string
+
+				plainTxt, err = db.DecryptGroupMsg(msg.Msg, msg.AesKey, gid)
+
+				s := fmt.Sprintf("%-20s%s", msg.Speak+":", msg.Speak, plainTxt)
 
 				c.Write([]byte(s))
 			}
 		case <-tc.C:
-			mc.refreshFriend(gid)
+			mc.refreshGroupMsg(gid)
 		case <-mc.refresh:
-			mc.refreshFriend(gid)
+			mc.refreshGroupMsg(gid)
 		case <-mc.quit:
 			c.Write([]byte("====quit===="))
 			time.Sleep(time.Second)
@@ -132,22 +137,7 @@ func GCListen(gid groupid.GrpID, port string) string {
 
 }
 
-func DecryptGMsg(gid groupid.GrpID, aesk string, cipherMsg string) (plainMsg string) {
-	//cfg := config.GetCCC()
-
-	//ciphertxt := base58.Decode(cipherMsg)
-	//
-	//aesk, err := chatcrypt.GenerateAesKey(friend.ToPubKey(), cfg.PrivKey)
-	//if err != nil {
-	//	return ""
-	//}
-	var plaintxt []byte
-	//plaintxt, err = chatcrypt.Decrypt(aesk, []byte(ciphertxt))
-
-	return string(plaintxt)
-}
-
-func (mc *GMsgChannel) refreshFriend(gid groupid.GrpID) {
+func (mc *GMsgChannel) refreshGroupMsg(gid groupid.GrpID) {
 
 	var (
 		begin int

@@ -248,7 +248,8 @@ func genGroupKeys(gid groupid.GrpID, friendPK string, drop bool) (pkeys []string
 
 	gkdb := db.GetChatGrpKeysDb()
 	memkey := gkdb.Insert(gkBytes, pkBytes)
-	db.UpdateGroupKeyMem(gid, memkey, aesk)
+	gmemdb := db.GetGrouKeyMemDb()
+	gmemdb.UpdateGroupKeyMem(gid, memkey, aesk)
 
 	pkeys = bytesArrays2StringArrays(pkBytes)
 	gkeys = bytesArrays2StringArrays(gkBytes)
@@ -350,8 +351,8 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 		if hks != gi.GKeyHash {
 			log.Println(" group key hash not corrected")
 		}
-
-		db.UpdateGroupKeyMem(gi.GID, hks)
+		gkmdb := db.GetGrouKeyMemDb()
+		gkmdb.UpdateGroupKeyMem(gi.GID, hks, nil)
 
 		return nil
 	}
@@ -453,7 +454,10 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 			log.Println("group key is not equals")
 		}
 
-		db.UpdateGroupKeyMem(resp.GMAI.GID, hashk)
+		gkmdb := db.GetGrouKeyMemDb()
+		gkmdb.UpdateGroupKeyMem(resp.GMAI.GID, hashk, nil)
+
+		//db.UpdateGroupKeyMem(resp.GMAI.GID, hashk)
 
 		return nil
 	}

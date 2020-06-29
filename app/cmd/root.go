@@ -16,6 +16,8 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/kprc/chatclient/chatmeta"
+	"github.com/kprc/chatclient/msgdrive"
 	"os"
 
 	"github.com/kprc/chatclient/app/cmdcommon"
@@ -70,7 +72,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		//go httpservice.StartWebDaemon()
-
+		msgdrive.RegMsgDriveFunc(chatmeta.FetchGroupKey2)
 		cmdservice.GetCmdServerInst().StartCmdService()
 	},
 }
