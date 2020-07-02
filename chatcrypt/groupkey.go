@@ -32,16 +32,15 @@ func GenGroupAesKey(mainPriv ed25519.PrivateKey, pubkeys [][]byte) (aes []byte, 
 
 	derivePub := mainPriv.Public()
 
+	var pubkeys2 [][]byte
+
 	for i := 0; i < len(pubkeys); i++ {
-		if bytes.Compare(derivePub.(ed25519.PublicKey), pubkeys[i]) == 0 {
-			length := len(pubkeys)
-			pubkeys[i] = pubkeys[length-1]
-			pubkeys = pubkeys[:length-1]
-			break
+		if bytes.Compare(derivePub.(ed25519.PublicKey), pubkeys[i]) != 0 {
+			pubkeys2 = append(pubkeys2,pubkeys[i])
 		}
 	}
 
-	r := InsertionSortDArray(pubkeys)
+	r := InsertionSortDArray(pubkeys2)
 	priv := mainPriv
 
 	groupKeys = append(groupKeys, derivePub.(ed25519.PublicKey))
@@ -68,22 +67,21 @@ func GenGroupAesKey(mainPriv ed25519.PrivateKey, pubkeys [][]byte) (aes []byte, 
 func DeriveGroupKey(priv ed25519.PrivateKey, groupPKs [][]byte, pubkeys [][]byte) (aes []byte, err error) {
 	derivePub := priv.Public().(ed25519.PublicKey)
 
+	var pubkeys2 [][]byte
+
 	for i := 0; i < len(pubkeys); i++ {
-		if bytes.Compare(groupPKs[0], pubkeys[i]) == 0 {
-			length := len(pubkeys)
-			pubkeys[i] = pubkeys[length-1]
-			pubkeys = pubkeys[:length-1]
-			break
+		if bytes.Compare(groupPKs[0], pubkeys[i]) != 0 {
+			pubkeys2 = append(pubkeys2,pubkeys[i])
 		}
 	}
 
-	if len(groupPKs) != len(pubkeys) {
+	if len(groupPKs) != len(pubkeys2) {
 		return nil, errors.New("pubkeys errors")
 	}
 
 	grpidx := -1
 
-	r := InsertionSortDArray(pubkeys)
+	r := InsertionSortDArray(pubkeys2)
 
 	for i := 0; i < len(r); i++ {
 		if bytes.Compare(derivePub, r[i]) == 0 {
