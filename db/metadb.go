@@ -29,6 +29,7 @@ type MetaDbIntf interface {
 
 	AddGroupMember(id groupid.GrpID, name string, addr address.ChatAddress, agree int, joinTime int64) error
 	DelGroupMember(id groupid.GrpID, addr address.ChatAddress) error
+	FindGroupMember(id groupid.GrpID, addr address.ChatAddress) (*GroupMbrWithOwner, error)
 
 	TraversFriends(arg interface{}, do func(arg, v interface{}) (ret interface{}, err error))
 	TraversGroups(arg interface{}, do func(arg, v interface{}) (ret interface{}, err error))
@@ -437,27 +438,61 @@ func (md *MetaDb) delGroupMember(id groupid.GrpID, addr address.ChatAddress) (*G
 		return nil, errors.New("Group Not Found")
 	}
 
-	arg := &GroupMbrWithOwner{GroupId: id, GrpMbr: &GroupMember{Addr: addr}}
+	//arg := &GroupMbrWithOwner{GroupId: id, GrpMbr: &GroupMember{Addr: addr}}
+	//
+	//gmo, err := md.LGroup.FindDo(arg, func(arg interface{}, v interface{}) (ret interface{}, err error) {
+	//	gmo := arg.(*GroupMbrWithOwner)
+	//	gv := v.(*Group)
+	//
+	//	if n := gv.LMember.Find(gmo.GrpMbr); n == nil {
+	//		return nil, errors.New("group member not found")
+	//	}
+	//
+	//	gv.LMember.DelValue(gmo.GrpMbr)
+	//
+	//	return gmo, nil
+	//
+	//})
+	//
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	gmo, err := md.LGroup.FindDo(arg, func(arg interface{}, v interface{}) (ret interface{}, err error) {
-		gmo := arg.(*GroupMbrWithOwner)
-		gv := v.(*Group)
+	gnode := node.Value.(*Group)
 
-		if n := gv.LMember.Find(gmo.GrpMbr); n == nil {
-			return nil, errors.New("group member not found")
-		}
+	gm := &GroupMember{Addr: addr}
 
-		gv.LMember.DelValue(gmo.GrpMbr)
+	node = gnode.LMember.Find(gm)
 
-		return gmo, nil
+	gmnode := node.Value.(*GroupMember)
 
-	})
+	return &GroupMbrWithOwner{GroupId: id, GrpMbr: gmnode}, nil
+}
 
-	if err != nil {
-		return nil, err
+func (md *MetaDb) FindGroupMember(id groupid.GrpID, addr address.ChatAddress) (*GroupMbrWithOwner, error) {
+	md.Lock.Lock()
+	defer md.Lock.Unlock()
+
+	g := &Group{GroupId: id}
+	node := md.LGroup.Find(g)
+	if node == nil {
+		return nil, errors.New("Group Not Found")
 	}
 
-	return gmo.(*GroupMbrWithOwner), nil
+	gnode := node.Value.(*Group)
+
+	gm := &GroupMember{}
+	gm.Addr = addr
+
+	node = gnode.LMember.Find(gm)
+	if node == nil {
+		return nil, errors.New("Group Not Found")
+	}
+
+	gmnode := node.Value.(*GroupMember)
+
+	return &GroupMbrWithOwner{GroupId: id, GrpMbr: gmnode}, nil
+
 }
 
 func (md *MetaDb) loadFriend() error {

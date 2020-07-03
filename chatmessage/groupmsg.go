@@ -124,7 +124,7 @@ func FetchGroupMsg(gid groupid.GrpID, begin, n int) error {
 	if err != nil {
 		return err
 	}
-	if reply.CipherTxt != "" {
+	if reply.CipherTxt == "" {
 		return errors.New("fetch group msg failed, cipher text is none")
 	}
 

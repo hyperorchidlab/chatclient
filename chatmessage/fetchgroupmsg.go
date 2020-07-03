@@ -3,6 +3,7 @@ package chatmessage
 import (
 	"errors"
 	"fmt"
+	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chat-protocol/groupid"
 	"github.com/kprc/chatclient/app/cmdlistenudp"
 	"github.com/kprc/chatclient/db"
@@ -117,7 +118,14 @@ func GCListen(gid groupid.GrpID, port string) string {
 
 				plainTxt, err = db.DecryptGroupMsg(msg.Msg, msg.AesKey, gid)
 
-				s := fmt.Sprintf("%-20s%s", msg.Speak+":", msg.Speak, plainTxt)
+				gmdb := db.GetMetaDb()
+				var gm *db.GroupMbrWithOwner
+				gm, err = gmdb.FindGroupMember(gid, address.ChatAddress(msg.Speak))
+				speek := msg.Speak
+				if err == nil && gm != nil && gm.GrpMbr != nil {
+					speek = gm.GrpMbr.AliasName
+				}
+				s := fmt.Sprintf("%-20s: %s", speek, plainTxt)
 
 				c.Write([]byte(s))
 			}

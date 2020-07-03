@@ -36,7 +36,7 @@ func GenGroupAesKey(mainPriv ed25519.PrivateKey, pubkeys [][]byte) (aes []byte, 
 
 	for i := 0; i < len(pubkeys); i++ {
 		if bytes.Compare(derivePub.(ed25519.PublicKey), pubkeys[i]) != 0 {
-			pubkeys2 = append(pubkeys2,pubkeys[i])
+			pubkeys2 = append(pubkeys2, pubkeys[i])
 		}
 	}
 
@@ -71,7 +71,7 @@ func DeriveGroupKey(priv ed25519.PrivateKey, groupPKs [][]byte, pubkeys [][]byte
 
 	for i := 0; i < len(pubkeys); i++ {
 		if bytes.Compare(groupPKs[0], pubkeys[i]) != 0 {
-			pubkeys2 = append(pubkeys2,pubkeys[i])
+			pubkeys2 = append(pubkeys2, pubkeys[i])
 		}
 	}
 
