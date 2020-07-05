@@ -142,7 +142,7 @@ func FetchGroupMsg(gid groupid.GrpID, begin, n int) error {
 			lm := resp.GMsg.LM[i]
 
 			gmdb := db.GetGroupMsgDb()
-			gmdb.Insert(resp.GMsg.Gid, lm.Speek, lm.AesHash, lm.Msg, lm.Cnt,lm.UCnt)
+			gmdb.Insert(resp.GMsg.Gid, lm.Speek, lm.AesHash, lm.Msg, lm.Cnt, lm.UCnt)
 
 		}
 

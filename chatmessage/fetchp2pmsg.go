@@ -83,17 +83,18 @@ func StopListen(friend address.ChatAddress) string {
 }
 
 func Listen(friend address.ChatAddress, port string) string {
-	mc := getChannel(friend.String())
-
-	err := checkRunning(mc)
-	if err != nil {
-		return err.Error()
-	}
 
 	fdb := db.GetMetaDb()
 	f, err := fdb.FindFriend(friend)
 	if err != nil {
 		return "friend not found"
+	}
+
+	mc := getChannel(friend.String())
+
+	err = checkRunning(mc)
+	if err != nil {
+		return err.Error()
 	}
 
 	c := cmdlistenudp.NewCmdUdpClient(port)

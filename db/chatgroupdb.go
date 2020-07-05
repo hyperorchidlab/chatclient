@@ -51,11 +51,11 @@ func GetGroupMsgDb() *GroupHistoryDB {
 	return groupMsgDB
 }
 
-func (ghdb *GroupHistoryDB) Insert(gid groupid.GrpID, speak address.ChatAddress, aesk, msg string, cnt int,ucnt int) error {
+func (ghdb *GroupHistoryDB) Insert(gid groupid.GrpID, speak address.ChatAddress, aesk, msg string, cnt int, ucnt int) error {
 	ghdb.lock.Lock()
 	defer ghdb.lock.Unlock()
 
-	m := &GroupMsg{Speak: speak.String(), Msg: msg, Counter: cnt, AesKey: aesk,UCnt: ucnt}
+	m := &GroupMsg{Speak: speak.String(), Msg: msg, Counter: cnt, AesKey: aesk, UCnt: ucnt}
 
 	d, _ := json.Marshal(&m)
 

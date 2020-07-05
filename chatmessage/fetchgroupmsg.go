@@ -6,6 +6,7 @@ import (
 	"github.com/kprc/chat-protocol/address"
 	"github.com/kprc/chat-protocol/groupid"
 	"github.com/kprc/chatclient/app/cmdlistenudp"
+	"github.com/kprc/chatclient/config"
 	"github.com/kprc/chatclient/db"
 	"sync"
 	"time"
@@ -83,9 +84,15 @@ func StopGCListen(gid groupid.GrpID) string {
 }
 
 func GCListen(gid groupid.GrpID, port string) string {
+
+	_, err := db.GetMetaDb().FindGroupMember(gid, address.ToAddress(config.GetCCC().PubKey))
+	if err != nil {
+		return "no member in group"
+	}
+
 	mc := getgChannel(gid.String())
 
-	err := checkGCRunning(mc)
+	err = checkGCRunning(mc)
 	if err != nil {
 		return err.Error()
 	}
@@ -113,11 +120,8 @@ func GCListen(gid groupid.GrpID, port string) string {
 		case m := <-mc.Msg:
 			for i := 0; i < len(m); i++ {
 				msg := m[i]
-
 				var plainTxt string
-
 				plainTxt, err = db.DecryptGroupMsg(msg.Msg, msg.AesKey, gid)
-
 				gmdb := db.GetMetaDb()
 				var gm *db.GroupMbrWithOwner
 				gm, err = gmdb.FindGroupMember(gid, address.ChatAddress(msg.Speak))
