@@ -156,7 +156,7 @@ func (mc *GMsgChannel) refreshGroupMsg(gid groupid.GrpID) {
 	if err != nil {
 		begin = 0
 	} else {
-		begin = v.Counter + 1
+		begin = v.UCnt + 1
 	}
 
 	err = FetchGroupMsg(gid, begin, 20)

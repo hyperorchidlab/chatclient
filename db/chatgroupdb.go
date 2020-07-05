@@ -21,6 +21,7 @@ type GroupMsg struct {
 	Msg     string `json:"msg"`
 	AesKey  string `json:"aes_key"`
 	Counter int    `json:"cnt"`
+	UCnt    int    `json:"u_cnt"`
 	LCnt    int    `json:"-"`
 }
 
@@ -50,11 +51,11 @@ func GetGroupMsgDb() *GroupHistoryDB {
 	return groupMsgDB
 }
 
-func (ghdb *GroupHistoryDB) Insert(gid groupid.GrpID, speak address.ChatAddress, aesk, msg string, cnt int) error {
+func (ghdb *GroupHistoryDB) Insert(gid groupid.GrpID, speak address.ChatAddress, aesk, msg string, cnt int,ucnt int) error {
 	ghdb.lock.Lock()
 	defer ghdb.lock.Unlock()
 
-	m := &GroupMsg{Speak: speak.String(), Msg: msg, Counter: cnt, AesKey: aesk}
+	m := &GroupMsg{Speak: speak.String(), Msg: msg, Counter: cnt, AesKey: aesk,UCnt: ucnt}
 
 	d, _ := json.Marshal(&m)
 
