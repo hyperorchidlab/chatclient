@@ -12,10 +12,6 @@ import (
 	"sync"
 )
 
-//type GroupKeyMemInfo struct {
-//	HashKey string
-//	AesKey  []byte
-//}
 
 type GroupKeyPair struct {
 	HK     string
