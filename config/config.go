@@ -3,8 +3,8 @@ package config
 import (
 	"crypto/ed25519"
 	"encoding/json"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/nbsnetwork/tools"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 	"log"
 	"os"
 	"path"
@@ -66,11 +66,11 @@ func (bc *ChatClientConfig) InitCfg() *ChatClientConfig {
 }
 
 func (bc *ChatClientConfig) Load() *ChatClientConfig {
-	if !tools.FileExists(GetCCCFGFile()) {
+	if !cmdcommon.FileExists(GetCCCFGFile()) {
 		return nil
 	}
 
-	jbytes, err := tools.OpenAndReadAll(GetCCCFGFile())
+	jbytes, err := cmdcommon.OpenAndReadAll(GetCCCFGFile())
 	if err != nil {
 		log.Println("load file failed", err)
 		return nil
@@ -118,7 +118,7 @@ func LoadFromCfgFile(file string) *ChatClientConfig {
 
 	bc.InitCfg()
 
-	bcontent, err := tools.OpenAndReadAll(file)
+	bcontent, err := cmdcommon.OpenAndReadAll(file)
 	if err != nil {
 		log.Fatal("Load Config file failed")
 		return nil
@@ -156,7 +156,7 @@ func LoadFromCmd(initfromcmd func(cmdbc *ChatClientConfig) *ChatClientConfig) *C
 }
 
 func GetCCCHomeDir() string {
-	curHome, err := tools.Home()
+	curHome, err := cmdcommon.Home()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -175,11 +175,11 @@ func (bc *ChatClientConfig) Save() {
 		log.Println("Save BASD Configuration json marshal failed", err)
 	}
 
-	if !tools.FileExists(GetCCCHomeDir()) {
+	if !cmdcommon.FileExists(GetCCCHomeDir()) {
 		os.MkdirAll(GetCCCHomeDir(), 0755)
 	}
 
-	err = tools.Save2File(jbytes, GetCCCFGFile())
+	err = cmdcommon.Save2File(jbytes, GetCCCFGFile())
 	if err != nil {
 		log.Println("Save BASD Configuration to file failed", err)
 	}
@@ -197,7 +197,7 @@ func (bc *ChatClientConfig) GetUserFile() string {
 func (bc *ChatClientConfig) GetMetaPath() string {
 	mtp := path.Join(GetCCCHomeDir(), bc.MetaDataPath)
 
-	if !tools.FileExists(mtp) {
+	if !cmdcommon.FileExists(mtp) {
 		os.MkdirAll(mtp, 0755)
 	}
 
@@ -207,7 +207,7 @@ func (bc *ChatClientConfig) GetMetaPath() string {
 func (bc *ChatClientConfig) GetChatFriendPath() string {
 	fp := path.Join(GetCCCHomeDir(), bc.ChatDataPath, bc.ChatFriendPath)
 
-	if !tools.FileExists(fp) {
+	if !cmdcommon.FileExists(fp) {
 		os.MkdirAll(fp, 0755)
 	}
 
@@ -217,7 +217,7 @@ func (bc *ChatClientConfig) GetChatFriendPath() string {
 func (bc *ChatClientConfig) GetChatGroupPath() string {
 	gp := path.Join(GetCCCHomeDir(), bc.ChatDataPath, bc.ChatGroupPath)
 
-	if !tools.FileExists(gp) {
+	if !cmdcommon.FileExists(gp) {
 		os.MkdirAll(gp, 0755)
 	}
 
@@ -242,7 +242,7 @@ func (bc *ChatClientConfig) GetCmdUrl() string {
 }
 
 func IsInitialized() bool {
-	if tools.FileExists(GetCCCFGFile()) {
+	if cmdcommon.FileExists(GetCCCFGFile()) {
 		return true
 	}
 

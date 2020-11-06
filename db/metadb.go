@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/nbsnetwork/common/list"
-	"github.com/kprc/nbsnetwork/tools"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
+	"github.com/hyperorchidlab/chatserver/db/hdb"
 	"github.com/pkg/errors"
 	"io"
 	"log"
@@ -55,7 +55,7 @@ func (f *Friend) String() string {
 	msg += fmt.Sprintf("%-20s", f.AliasName)
 	msg += fmt.Sprintf("%-48s", f.Addr.String())
 	msg += fmt.Sprintf("%-4d", f.Agree)
-	msg += fmt.Sprintf("%-20s", tools.Int64Time2String(f.AddTime))
+	msg += fmt.Sprintf("%-20s", cmdcommon.Int64Time2String(f.AddTime))
 
 	return msg
 }
@@ -77,7 +77,7 @@ func (gm *GroupMember) String() string {
 	msg += fmt.Sprintf("%-20s", gm.AliasName)
 	msg += fmt.Sprintf("%-48s", gm.Addr.String())
 	msg += fmt.Sprintf("%-4d", gm.Agree)
-	msg += fmt.Sprintf("%-20s", tools.Int64Time2String(gm.JoinGroupTime))
+	msg += fmt.Sprintf("%-20s", cmdcommon.Int64Time2String(gm.JoinGroupTime))
 
 	return msg
 }
@@ -91,7 +91,7 @@ type Group struct {
 	GroupId    groupid.GrpID `json:"group_id"`
 	IsOwner    bool          `json:"is_owner"`
 	CreateTime int64         `json:"create_time"`
-	LMember    list.List     `json:"-"`
+	LMember    hdb.List      `json:"-"`
 }
 
 func (g *Group) String() string {
@@ -99,7 +99,7 @@ func (g *Group) String() string {
 	msg += fmt.Sprintf("%-20s", g.GroupName)
 	msg += fmt.Sprintf("%-48s", g.GroupId.String())
 	msg += fmt.Sprintf("%-6v", g.IsOwner)
-	msg += fmt.Sprintf("%-20s", tools.Int64Time2String(g.CreateTime))
+	msg += fmt.Sprintf("%-20s", cmdcommon.Int64Time2String(g.CreateTime))
 
 	return msg
 }
@@ -110,8 +110,8 @@ func (g *Group) GetIndex() string {
 
 type MetaDb struct {
 	Lock    sync.Mutex
-	LFriend list.List //*Friend
-	LGroup  list.List //*Group
+	LFriend hdb.List //*Friend
+	LGroup  hdb.List //*Group
 
 	friendFile *os.File
 	groupFile  *os.File
@@ -132,9 +132,9 @@ func medatacmp(v1, v2 interface{}) int {
 func NewMetaDb() MetaDbIntf {
 	md := &MetaDb{}
 
-	md.LFriend = list.NewList(medatacmp)
+	md.LFriend = hdb.NewList(medatacmp)
 
-	md.LGroup = list.NewList(medatacmp)
+	md.LGroup = hdb.NewList(medatacmp)
 
 	return md
 }
@@ -270,7 +270,7 @@ func (md *MetaDb) addGroup(name string, id groupid.GrpID, isOwner bool, createTi
 	grp := &Group{GroupName: name, GroupId: id, IsOwner: isOwner, CreateTime: createTime}
 	node := md.LGroup.Find(grp)
 	if node == nil {
-		grp.LMember = list.NewList(medatacmp)
+		grp.LMember = hdb.NewList(medatacmp)
 		md.LGroup.AddValue(grp)
 	} else {
 		md.LGroup.FindDo(grp, func(arg interface{}, v interface{}) (ret interface{}, err error) {
@@ -500,7 +500,7 @@ func (md *MetaDb) loadFriend() error {
 
 	flag := os.O_RDWR | os.O_APPEND
 
-	if !tools.FileExists(fdbPath) {
+	if !cmdcommon.FileExists(fdbPath) {
 		flag |= os.O_CREATE
 	}
 
@@ -573,7 +573,7 @@ func safeWrite(f *os.File, data []byte) error {
 func safeAppend(filename string, data []byte) error {
 	flag := os.O_RDWR | os.O_APPEND
 
-	if !tools.FileExists(filename) {
+	if !cmdcommon.FileExists(filename) {
 		flag |= os.O_CREATE
 	}
 
@@ -612,7 +612,7 @@ func (md *MetaDb) loadGroup() error {
 
 	flag := os.O_RDWR | os.O_APPEND
 
-	if !tools.FileExists(gdbPath) {
+	if !cmdcommon.FileExists(gdbPath) {
 		flag |= os.O_CREATE
 	}
 
@@ -681,7 +681,7 @@ func (md *MetaDb) loadGroupMember() error {
 
 	flag := os.O_RDWR | os.O_APPEND
 
-	if !tools.FileExists(gmdbPath) {
+	if !cmdcommon.FileExists(gmdbPath) {
 		flag |= os.O_CREATE
 	}
 
@@ -773,7 +773,7 @@ func (md *MetaDb) writeFriend(data []byte) error {
 
 		fdbPath := path.Join(config.GetCCC().GetMetaPath(), friendDbFileName)
 
-		if !tools.FileExists(fdbPath) {
+		if !cmdcommon.FileExists(fdbPath) {
 			flag |= os.O_CREATE
 		}
 		if f, err := os.OpenFile(fdbPath, flag, 0755); err != nil {
@@ -796,7 +796,7 @@ func (md *MetaDb) writeGroup(data []byte) error {
 
 		gdbPath := path.Join(config.GetCCC().GetMetaPath(), groupDbFileName)
 
-		if !tools.FileExists(gdbPath) {
+		if !cmdcommon.FileExists(gdbPath) {
 			flag |= os.O_CREATE
 		}
 		if f, err := os.OpenFile(gdbPath, flag, 0755); err != nil {
@@ -818,7 +818,7 @@ func (md *MetaDb) writeGrpMbr(data []byte) error {
 
 		gmdbPath := path.Join(config.GetCCC().GetMetaPath(), groupmemberDbFileName)
 
-		if !tools.FileExists(gmdbPath) {
+		if !cmdcommon.FileExists(gmdbPath) {
 			flag |= os.O_CREATE
 		}
 		if f, err := os.OpenFile(gmdbPath, flag, 0755); err != nil {

@@ -2,13 +2,13 @@ package db
 
 import (
 	"encoding/json"
-	"github.com/kprc/nbsnetwork/db"
+	"github.com/hyperorchidlab/chatserver/db"
 	"sync"
 
 	"crypto/sha256"
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/kprc/chatclient/chatcrypt"
-	"github.com/kprc/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/chatcrypt"
+	"github.com/hyperorchidlab/chatclient/config"
 )
 
 type GroupKeysDb struct {

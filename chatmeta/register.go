@@ -3,10 +3,10 @@ package chatmeta
 import (
 	"encoding/json"
 	"errors"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/chatclient/config"
-	"github.com/rickeyliao/ServiceAgent/common"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 	"log"
 )
 
@@ -33,7 +33,7 @@ func RegChat(alias string, months int) error {
 	)
 	log.Println(string(regs))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetRegUrl(), string(regs), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetRegUrl(), string(regs), false)
 	if err != nil {
 		return err
 	}

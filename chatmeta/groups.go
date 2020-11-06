@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/chatclient/chatcrypt"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/chatclient/db"
-	"github.com/kprc/nbsnetwork/tools"
-	"github.com/rickeyliao/ServiceAgent/common"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatclient/chatcrypt"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/db"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 	"log"
 	"strconv"
 )
@@ -21,7 +20,7 @@ func CreateGroup(groupName string) error {
 	gd := &protocol.GroupDesc{}
 	gd.GroupAlias = groupName
 	gd.GroupID = groupid.NewGroupId().String()
-	gd.SendTime = tools.GetNowMsTime()
+	gd.SendTime = cmdcommon.GetNowMsTime()
 
 	cfg := config.GetCCC()
 
@@ -47,7 +46,7 @@ func CreateGroup(groupName string) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -92,7 +91,7 @@ func DelGroup(gid groupid.GrpID) error {
 
 	gd := &protocol.GroupDesc{}
 	gd.GroupID = gid.String()
-	gd.SendTime = tools.GetNowMsTime()
+	gd.SendTime = cmdcommon.GetNowMsTime()
 
 	cfg := config.GetCCC()
 
@@ -118,7 +117,7 @@ func DelGroup(gid groupid.GrpID) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -290,7 +289,7 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 	gmd := &protocol.GroupMemberDesc{}
 	gmd.GroupID = gid.String()
 	gmd.Friend = friendPk
-	gmd.SendTime = tools.GetNowMsTime()
+	gmd.SendTime = cmdcommon.GetNowMsTime()
 	gmd.Pubkeys = pks
 	gmd.GKeys = gks
 
@@ -311,7 +310,7 @@ func JoinGroup(gid groupid.GrpID, friendPk string) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -391,7 +390,7 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	gmd := &protocol.GroupMemberDesc{}
 	gmd.GroupID = gid.String()
 	gmd.Friend = friendPk
-	gmd.SendTime = tools.GetNowMsTime()
+	gmd.SendTime = cmdcommon.GetNowMsTime()
 	gmd.Pubkeys = pks
 	gmd.GKeys = gks
 
@@ -412,7 +411,7 @@ func QuitGroup(gid groupid.GrpID, friendPk string) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}

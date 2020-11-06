@@ -3,9 +3,9 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/nbsnetwork/db"
-	"github.com/kprc/nbsnetwork/hdb"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatserver/db"
+	"github.com/hyperorchidlab/chatserver/db/hdb"
 	"sync"
 )
 

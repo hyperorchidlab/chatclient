@@ -2,11 +2,11 @@ package db
 
 import (
 	"encoding/json"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/nbsnetwork/db"
-	"github.com/kprc/nbsnetwork/hdb"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatserver/db"
+	"github.com/hyperorchidlab/chatserver/db/hdb"
 	"sync"
 )
 

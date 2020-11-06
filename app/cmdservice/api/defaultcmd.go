@@ -7,13 +7,13 @@ import (
 
 	"encoding/json"
 
-	"github.com/kprc/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/config"
 
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chatclient/app/cmdcommon"
-	"github.com/kprc/chatclient/app/cmdpb"
-	"github.com/kprc/chatclient/chatmeta"
-	"github.com/kprc/chatclient/db"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chatclient/app/cmdcommon"
+	"github.com/hyperorchidlab/chatclient/app/cmdpb"
+	"github.com/hyperorchidlab/chatclient/chatmeta"
+	"github.com/hyperorchidlab/chatclient/db"
 )
 
 type CmdDefaultServer struct {

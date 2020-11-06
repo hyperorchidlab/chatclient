@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/kprc/chatclient/app/cmd"
+	"github.com/hyperorchidlab/chatclient/app/cmd"
 )
 
 var (

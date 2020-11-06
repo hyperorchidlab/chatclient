@@ -3,15 +3,14 @@ package chatmeta
 import (
 	"encoding/json"
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/chatclient/chatcrypt"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/chatclient/db"
-	"github.com/kprc/nbsnetwork/tools"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatclient/chatcrypt"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/db"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 	"github.com/pkg/errors"
-	"github.com/rickeyliao/ServiceAgent/common"
 	"log"
 	"strconv"
 )
@@ -31,7 +30,7 @@ func AddFriend(addr address.ChatAddress) error {
 
 	fd := &protocol.FriendDesc{}
 	fd.PeerPubKey = addr.String()
-	fd.SendTime = tools.GetNowMsTime()
+	fd.SendTime = cmdcommon.GetNowMsTime()
 
 	cmd := protocol.UserCommand{}
 	cmd.Op = protocol.AddFriend
@@ -55,7 +54,7 @@ func AddFriend(addr address.ChatAddress) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -112,7 +111,7 @@ func DelFriend(addr address.ChatAddress) error {
 
 	fd := &protocol.FriendDesc{}
 	fd.PeerPubKey = addr.String()
-	fd.SendTime = tools.GetNowMsTime()
+	fd.SendTime = cmdcommon.GetNowMsTime()
 
 	cmd := protocol.UserCommand{}
 	cmd.Op = protocol.DelFriend
@@ -136,7 +135,7 @@ func DelFriend(addr address.ChatAddress) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -199,7 +198,7 @@ func RefreshGroupMembers(gid groupid.GrpID) error {
 
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -260,7 +259,7 @@ func RefreshFriends() (string, error) {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return "", err
 	}

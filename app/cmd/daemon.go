@@ -15,16 +15,16 @@
 package cmd
 
 import (
-	"github.com/kprc/chatclient/chatmeta"
-	"github.com/kprc/chatclient/msgdrive"
+	"github.com/hyperorchidlab/chatclient/chatmeta"
+	"github.com/hyperorchidlab/chatclient/msgdrive"
 	//"github.com/BASChain/go-bas-discover-wanip/dns/server"
 	"github.com/sevlyar/go-daemon"
 	"github.com/spf13/cobra"
 	"log"
 
-	"github.com/kprc/chatclient/app/cmdcommon"
-	"github.com/kprc/chatclient/app/cmdservice"
-	"github.com/kprc/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/app/cmdcommon"
+	"github.com/hyperorchidlab/chatclient/app/cmdservice"
+	"github.com/hyperorchidlab/chatclient/config"
 	//"github.com/BASChain/go-bas-discover-wanip/dns/dohserver"
 	//"github.com/BASChain/go-bas-discover-wanip/dns/mem"
 

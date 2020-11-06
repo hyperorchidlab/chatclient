@@ -1,7 +1,7 @@
 package msgdrive
 
 import (
-	"github.com/kprc/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
 )
 
 var FMsgDrive func(hahsKey string) (*protocol.GroupKeys, error)

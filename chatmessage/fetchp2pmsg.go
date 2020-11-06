@@ -2,9 +2,9 @@ package chatmessage
 
 import (
 	"fmt"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chatclient/app/cmdlistenudp"
-	"github.com/kprc/chatclient/db"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chatclient/app/cmdlistenudp"
+	"github.com/hyperorchidlab/chatclient/db"
 	"github.com/pkg/errors"
 	"time"
 

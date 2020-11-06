@@ -2,8 +2,8 @@ package cmdcommon
 
 import (
 	"errors"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/nbsnetwork/tools"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 )
 
 func IsProcessCanStarted() (bool, error) {
@@ -14,13 +14,13 @@ func IsProcessCanStarted() (bool, error) {
 		return true, nil
 	}
 
-	ip, port, err := tools.GetIPPort(cfg.CmdListenPort)
+	ip, port, err := cmdcommon.GetIPPort(cfg.CmdListenPort)
 	if err != nil {
 
 		return false, errors.New("Command line listen address error")
 	}
 
-	if tools.CheckPortUsed("tcp", ip, uint16(port)) {
+	if cmdcommon.CheckPortUsed("tcp", ip, uint16(port)) {
 
 		return false, errors.New("Process have started")
 	}
@@ -38,13 +38,13 @@ func IsProcessStarted() (bool, error) {
 		return false, errors.New("load config failed")
 	}
 
-	ip, port, err := tools.GetIPPort(cfg.CmdListenPort)
+	ip, port, err := cmdcommon.GetIPPort(cfg.CmdListenPort)
 	if err != nil {
 
 		return false, errors.New("Command line listen address error")
 	}
 
-	if tools.CheckPortUsed("tcp", ip, uint16(port)) {
+	if cmdcommon.CheckPortUsed("tcp", ip, uint16(port)) {
 		return true, nil
 	}
 

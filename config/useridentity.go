@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/nbsnetwork/tools"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 	"log"
 )
 
@@ -22,7 +22,7 @@ func IsUserIdentifyReceived() bool {
 
 	ufpath := cfg.GetUserFile()
 
-	if tools.FileExists(ufpath) {
+	if cmdcommon.FileExists(ufpath) {
 		return true
 	}
 
@@ -40,7 +40,7 @@ func SaveUserIdentify(sp *protocol.SignPack) {
 
 	ui.SP = *sp
 
-	data, err := tools.OpenAndReadAll(cfg.GetKeyPath())
+	data, err := cmdcommon.OpenAndReadAll(cfg.GetKeyPath())
 	if err != nil {
 		log.Fatal("Load From key file error")
 		return
@@ -61,7 +61,7 @@ func SaveUserIdentify(sp *protocol.SignPack) {
 		log.Fatal("Save json error")
 		return
 	}
-	err = tools.Save2File(data, cfg.GetUserFile())
+	err = cmdcommon.Save2File(data, cfg.GetUserFile())
 	if err != nil {
 		log.Fatal("Save to file error")
 		return
@@ -74,7 +74,7 @@ func SaveUserIdentify(sp *protocol.SignPack) {
 func LoadUserIdentify() {
 
 	cfg := GetCCC()
-	data, err := tools.OpenAndReadAll(cfg.GetUserFile())
+	data, err := cmdcommon.OpenAndReadAll(cfg.GetUserFile())
 	if err != nil {
 		log.Fatal("Load userfile ")
 		return

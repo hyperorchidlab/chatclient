@@ -3,15 +3,14 @@ package db
 import (
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/chatclient/chatcrypt"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/chatclient/msgdrive"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatclient/chatcrypt"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/msgdrive"
 	"sync"
 )
-
 
 type GroupKeyPair struct {
 	HK     string

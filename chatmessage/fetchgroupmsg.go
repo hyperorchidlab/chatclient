@@ -3,11 +3,11 @@ package chatmessage
 import (
 	"errors"
 	"fmt"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chatclient/app/cmdlistenudp"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/chatclient/db"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chatclient/app/cmdlistenudp"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/db"
 	"sync"
 	"time"
 )

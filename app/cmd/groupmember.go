@@ -18,9 +18,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chatclient/app/cmdclient"
-	"github.com/kprc/chatclient/app/cmdcommon"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chatclient/app/cmdclient"
+	"github.com/hyperorchidlab/chatclient/app/cmdcommon"
 	"github.com/spf13/cobra"
 )
 

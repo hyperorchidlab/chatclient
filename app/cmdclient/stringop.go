@@ -2,8 +2,8 @@ package cmdclient
 
 import (
 	"fmt"
-	"github.com/kprc/chatclient/app/cmdcommon"
-	"github.com/kprc/chatclient/app/cmdpb"
+	"github.com/hyperorchidlab/chatclient/app/cmdcommon"
+	"github.com/hyperorchidlab/chatclient/app/cmdpb"
 	"log"
 	"strings"
 )

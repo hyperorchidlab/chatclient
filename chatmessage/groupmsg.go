@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/btcsuite/btcutil/base58"
-	"github.com/kprc/chat-protocol/address"
-	"github.com/kprc/chat-protocol/groupid"
-	"github.com/kprc/chat-protocol/protocol"
-	"github.com/kprc/chatclient/chatcrypt"
-	"github.com/kprc/chatclient/config"
-	"github.com/kprc/chatclient/db"
-	"github.com/rickeyliao/ServiceAgent/common"
+	"github.com/hyperorchidlab/chat-protocol/address"
+	"github.com/hyperorchidlab/chat-protocol/groupid"
+	"github.com/hyperorchidlab/chat-protocol/protocol"
+	"github.com/hyperorchidlab/chatclient/chatcrypt"
+	"github.com/hyperorchidlab/chatclient/config"
+	"github.com/hyperorchidlab/chatclient/db"
+	"github.com/hyperorchidlab/chatserver/app/cmdcommon"
 	"log"
 	"strconv"
 )
@@ -57,7 +57,7 @@ func SendGroupMsg(gid groupid.GrpID, msg string) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func FetchGroupMsg(gid groupid.GrpID, begin, n int) error {
 	)
 	log.Println(string(d2s))
 
-	resp, stat, err = common.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
+	resp, stat, err = cmdcommon.Post1(config.GetCCC().GetCmdUrl(), string(d2s), false)
 	if err != nil {
 		return err
 	}
